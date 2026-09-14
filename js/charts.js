@@ -22,10 +22,18 @@ function formatPercent(val) {
 }
 
 function initOrUpdateCharts(data) {
-    updateBreakevenChart(data);
-    updateInflationChart(data);
-    updateAmortizationChart(data);
-    updateStakeholderChart(data);
+    if (typeof Chart === 'undefined') {
+        console.warn('کتابخانه Chart.js بارگذاری نشده است؛ نمودارها موقتاً غیرفعال هستند.');
+        return;
+    }
+    try {
+        if (document.getElementById('breakevenChartCanvas')) updateBreakevenChart(data);
+        if (document.getElementById('inflationChartCanvas')) updateInflationChart(data);
+        if (document.getElementById('amortizationChartCanvas')) updateAmortizationChart(data);
+        if (document.getElementById('stakeholderChartCanvas')) updateStakeholderChart(data);
+    } catch (err) {
+        console.error('خطا در رسم نمودارها:', err);
+    }
 }
 
 // ۱. نمودار تحلیل نقطه سربه‌سر و رشد اندوخته

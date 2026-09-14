@@ -5,8 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سامانه جامع تحلیل و شبیه‌سازی مدل مالی بیمه - بانک (Bancassurance)</title>
     <link rel="stylesheet" href="css/dashboard.css">
-    <!-- لود Chart.js از CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- لود محلی Chart.js با فال‌بک امن -->
+    <script src="js/chart.umd.min.js"></script>
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"><\/script>');
+        }
+    </script>
 </head>
 <body>
     <div class="app-container">
@@ -21,10 +26,10 @@
             </div>
             <div class="preset-scenario-bar">
                 <span>سناریوهای از پیش‌تنظیم شده:</span>
-                <button class="btn-preset active" onclick="loadPreset('standard')">استاندارد (تسهیلات ۲۳٪)</button>
-                <button class="btn-preset" onclick="loadPreset('qard')">قرض‌الحسنه (۴٪)</button>
-                <button class="btn-preset" onclick="loadPreset('hyper')">تورم بالا (۵۵٪)</button>
-                <button class="btn-preset" onclick="loadPreset('direct')">فروش مستقیم (کارمزد ۰)</button>
+                <button class="btn-preset active" onclick="loadPreset('standard', event)">استاندارد (تسهیلات ۲۳٪)</button>
+                <button class="btn-preset" onclick="loadPreset('qard', event)">قرض‌الحسنه (۴٪)</button>
+                <button class="btn-preset" onclick="loadPreset('hyper', event)">تورم بالا (۵۵٪)</button>
+                <button class="btn-preset" onclick="loadPreset('direct', event)">فروش مستقیم (کارمزد ۰)</button>
                 <button class="btn-preset" onclick="exportToCsv()" style="background-color: #059669; border-color: #059669; margin-right: 0.5rem;">خروجی اکسل / CSV</button>
             </div>
         </header>

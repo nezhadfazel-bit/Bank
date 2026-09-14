@@ -164,14 +164,15 @@ async function fetchSimulation() {
 }
 
 function renderDashboard(data) {
-    renderKPIs(data);
-    renderWaterfall(data);
-    initOrUpdateCharts(data);
-    renderInsuranceStrategicAnalysis(data.insuranceAnalysis);
-    renderMortalityTable(data);
-    renderYearlyTable(data);
-    renderSensitivityTable(data);
-    renderMonthlyTable(data);
+    if (!data) return;
+    try { renderKPIs(data); } catch (e) { console.error('Error rendering KPIs:', e); }
+    try { renderWaterfall(data); } catch (e) { console.error('Error rendering Waterfall:', e); }
+    try { initOrUpdateCharts(data); } catch (e) { console.error('Error rendering Charts:', e); }
+    try { renderInsuranceStrategicAnalysis(data.insuranceAnalysis); } catch (e) { console.error('Error rendering Insurance Analysis:', e); }
+    try { renderMortalityTable(data); } catch (e) { console.error('Error rendering Mortality Table:', e); }
+    try { renderYearlyTable(data); } catch (e) { console.error('Error rendering Yearly Table:', e); }
+    try { renderSensitivityTable(data); } catch (e) { console.error('Error rendering Sensitivity Table:', e); }
+    try { renderMonthlyTable(data); } catch (e) { console.error('Error rendering Monthly Table:', e); }
 }
 
 function renderKPIs(data) {
@@ -311,9 +312,10 @@ function renderMonthlyTable(data) {
 }
 
 // بارگذاری سناریوهای پیش‌فرض
-function loadPreset(presetType) {
+function loadPreset(presetType, evt) {
     document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
+    const target = evt ? evt.target : (window.event && window.event.target ? window.event.target : null);
+    if (target) target.classList.add('active');
 
     if (presetType === 'standard') {
         currentModel.bankLoanAnnualInterestRate = 0.23;
