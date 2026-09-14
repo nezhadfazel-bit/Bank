@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سامانه جامع تحلیل و شبیه‌سازی مدل مالی بیمه - بانک (Bancassurance)</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <!-- لود Chart.js از CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-title">
+                <h1>
+                    <span>سامانه تحلیل مالی و اکچوئری قرارداد بیمه - بانک</span>
+                    <span class="badge">بانک سامان &times; شرکت بیمه</span>
+                </h1>
+                <p>مدل‌سازی تعاملی نقطه سربه‌سر، تسهیلات بانکی، اندوخته سرمایه‌گذاری، اثر تورم افسارگسیخته و ریسک فوت</p>
+            </div>
+            <div class="preset-scenario-bar">
+                <span>سناریوهای از پیش‌تنظیم شده:</span>
+                <button class="btn-preset active" onclick="loadPreset('standard')">استاندارد (تسهیلات ۲۳٪)</button>
+                <button class="btn-preset" onclick="loadPreset('qard')">قرض‌الحسنه (۴٪)</button>
+                <button class="btn-preset" onclick="loadPreset('hyper')">تورم بالا (۵۵٪)</button>
+                <button class="btn-preset" onclick="loadPreset('direct')">فروش مستقیم (کارمزد ۰)</button>
+                <button class="btn-preset" onclick="exportToCsv()" style="background-color: #059669; border-color: #059669; margin-right: 0.5rem;">خروجی اکسل / CSV</button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Sidebar: Parameters Control -->
+            <aside class="sidebar-panel">
+                <h2>
+                    <span>⚙️</span>
+                    <span>تنظیمات و متغیرهای قرارداد</span>
+                </h2>
+
+                <!-- گروه ۱: مبالغ پایه -->
+                <div class="accordion-group">
+                    <div class="accordion-header">
+                        <span>۱. ارقام پایه قرارداد</span>
+                        <span class="acc-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="form-group">
+                            <label>ارزش کل بیمه‌نامه: <span class="val-display" id="totalPolicyValueVal">۱۰۰ م تومان</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="totalPolicyValueSlider" min="50000000" max="500000000" step="10000000" value="100000000">
+                                <input type="number" id="totalPolicyValue" value="100000000" step="10000000">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>آورده نقدی بیمه‌گذار: <span class="val-display" id="customerInitialCashVal">۴۰ م تومان</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="customerInitialCashSlider" min="10000000" max="200000000" step="5000000" value="40000000">
+                                <input type="number" id="customerInitialCash" value="40000000" step="5000000">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>مبلغ وام اعطایی بانک: <span class="val-display" id="bankLoanAmountVal">۶۰ م تومان</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="bankLoanAmountSlider" min="20000000" max="300000000" step="5000000" value="60000000">
+                                <input type="number" id="bankLoanAmount" value="60000000" step="5000000">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- گروه ۲: شرایط تسهیلات بانکی -->
+                <div class="accordion-group">
+                    <div class="accordion-header">
+                        <span>۲. کارمزد و شرایط تسهیلات بانک</span>
+                        <span class="acc-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="form-group">
+                            <label>نرخ سود سالانه تسهیلات وام: <span class="val-display" id="bankLoanAnnualInterestRateVal">۲۳٪</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="bankLoanAnnualInterestRateSlider" min="0" max="40" step="1" value="23">
+                                <input type="number" id="bankLoanAnnualInterestRate" value="23" min="0" max="40">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>مدت بازپرداخت اقساط: <span class="val-display" id="bankLoanTenureMonthsVal">۲۴ ماه</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="bankLoanTenureMonthsSlider" min="6" max="60" step="6" value="24">
+                                <input type="number" id="bankLoanTenureMonths" value="24" min="6" max="60">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>کارمزد اولیه بانک: <span class="val-display" id="bankFeeRateVal">۶.۵٪</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="bankFeeRateSlider" min="0" max="15" step="0.5" value="6.5">
+                                <input type="number" id="bankFeeRate" value="6.5" step="0.5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>سپرده مسدودشده بانک: <span class="val-display" id="bankBlockedDepositRateVal">۴٪</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="bankBlockedDepositRateSlider" min="0" max="20" step="1" value="4">
+                                <input type="number" id="bankBlockedDepositRate" value="4">
+                            </div>
+                        </div>
+                        <div class="form-switch">
+                            <input type="checkbox" id="deductBankChargesFromLoanProceeds" checked>
+                            <label for="deductBankChargesFromLoanProceeds">کسر کارمزد و مسدودی از مبلغ وام واریزی به صندوق</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- گروه ۳: بیمه‌گری و اکچوئری -->
+                <div class="accordion-group">
+                    <div class="accordion-header">
+                        <span>۳. بیمه‌گری و ریسک فوت</span>
+                        <span class="acc-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="form-group">
+                            <label>هزینه بیمه‌گری اولیه شرکت بیمه: <span class="val-display" id="insuranceUnderwritingFeeRateVal">۵٪</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="insuranceUnderwritingFeeRateSlider" min="0" max="15" step="0.5" value="5">
+                                <input type="number" id="insuranceUnderwritingFeeRate" value="5" step="0.5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>حق بیمه پوشش فوت: <span class="val-display" id="lifeCoverageFeeRateVal">۵٪</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="lifeCoverageFeeRateSlider" min="0" max="10" step="0.5" value="5">
+                                <input type="number" id="lifeCoverageFeeRate" value="5" step="0.5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>سرمایه فوت تعهد بیمه: <span class="val-display" id="lifeCoverageCapitalVal">۱۰۰ م تومان</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="lifeCoverageCapitalSlider" min="50000000" max="500000000" step="10000000" value="100000000">
+                                <input type="number" id="lifeCoverageCapital" value="100000000" step="10000000">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>کارمزد نماینده فروش: <span class="val-display" id="agentCommissionRateVal">۲٪</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="agentCommissionRateSlider" min="0" max="10" step="0.5" value="2">
+                                <input type="number" id="agentCommissionRate" value="2" step="0.5">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>سن بیمه‌گذار: <span class="val-display" id="insuredAgeVal">۳۵ سال</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="insuredAgeSlider" min="20" max="65" step="1" value="35">
+                                <input type="number" id="insuredAge" value="35">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- گروه ۴: بازدهی صندوق و متغیرهای کلان -->
+                <div class="accordion-group">
+                    <div class="accordion-header">
+                        <span>۴. بازده صندوق و تورم</span>
+                        <span class="acc-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="form-group">
+                            <label>نرخ بازده سالانه صندوق: <span class="val-display" id="fundAnnualReturnRateVal">۳۰٪</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="fundAnnualReturnRateSlider" min="10" max="60" step="1" value="30">
+                                <input type="number" id="fundAnnualReturnRate" value="30">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>نرخ تورم سالانه در ایران: <span class="val-display" id="annualInflationRateVal">۴۰٪</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="annualInflationRateSlider" min="15" max="70" step="1" value="40">
+                                <input type="number" id="annualInflationRate" value="40">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>افق زمانی تحلیل: <span class="val-display" id="simulationYearsVal">۱۰ سال</span></label>
+                            <div class="input-slider-wrapper">
+                                <input type="range" id="simulationYearsSlider" min="3" max="25" step="1" value="10">
+                                <input type="number" id="simulationYears" value="10">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="main-content">
+                <!-- KPI Row -->
+                <div class="kpi-row">
+                    <div class="kpi-card kpi-breakeven">
+                        <div class="kpi-title">
+                            <span>🎯</span>
+                            <span>نقطه سربه‌سر اسمی</span>
+                        </div>
+                        <div class="kpi-value" id="kpiBreakevenVal">در حال محاسبه...</div>
+                        <div class="kpi-sub" id="kpiBreakevenSub">زمان برابری ارزش بازخرید با کل پرداختی‌ها</div>
+                    </div>
+
+                    <div class="kpi-card kpi-customer">
+                        <div class="kpi-title">
+                            <span>📈</span>
+                            <span>نرخ بازده داخلی بیمه‌گذار (IRR)</span>
+                        </div>
+                        <div class="kpi-value" id="kpiIrrVal">--</div>
+                        <div class="kpi-sub" id="kpiIrrSub">بازده سالانه کل سرمایه‌گذاری</div>
+                    </div>
+
+                    <div class="kpi-card kpi-inflation">
+                        <div class="kpi-title">
+                            <span>💰</span>
+                            <span>ارزش نهایی اندوخته خالص</span>
+                        </div>
+                        <div class="kpi-value" id="kpiFundVal">--</div>
+                        <div class="kpi-sub" id="kpiFundSub">پس از تسویه کامل تسهیلات بانکی</div>
+                    </div>
+
+                    <div class="kpi-card kpi-bank">
+                        <div class="kpi-title">
+                            <span>🏛️</span>
+                            <span>نرخ بازده مؤثر تسهیلات بانک</span>
+                        </div>
+                        <div class="kpi-value" id="kpiBankVal">--</div>
+                        <div class="kpi-sub" id="kpiBankSub">شامل کارمزد و رسوب سپرده مسدود</div>
+                    </div>
+
+                    <div class="kpi-card kpi-insurance">
+                        <div class="kpi-title">
+                            <span>🛡️</span>
+                            <span>حاشیه سود شرکت بیمه</span>
+                        </div>
+                        <div class="kpi-value" id="kpiInsVal">--</div>
+                        <div class="kpi-sub" id="kpiInsSub">درآمد بیمه‌گری منهای خسارت انتظاری</div>
+                    </div>
+                </div>
+
+                <!-- 4 Interactive Charts Grid -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">
+                                <span>📊</span>
+                                <span>روند رشد اندوخته و تحلیل نقطه سربه‌سر</span>
+                            </div>
+                            <span class="chart-badge">نقطه تلاقی اندوخته با پرداختی</span>
+                        </div>
+                        <div class="chart-canvas-wrapper">
+                            <canvas id="breakevenChartCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">
+                                <span>📉</span>
+                                <span>اثر تورم بر قدرت خرید واقعی اندوخته</span>
+                            </div>
+                            <span class="chart-badge">ارزش اسمی در برابر ارزش روز</span>
+                        </div>
+                        <div class="chart-canvas-wrapper">
+                            <canvas id="inflationChartCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">
+                                <span>🏦</span>
+                                <span>استهلاک وام بانکی و پوشش وثیقه صندوق</span>
+                            </div>
+                            <span class="chart-badge">ریسک اعتباری بانک = صفر</span>
+                        </div>
+                        <div class="chart-canvas-wrapper">
+                            <canvas id="amortizationChartCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">
+                                <span>⚖️</span>
+                                <span>سود و زیان (P&L) سه ذی‌نفع در طول زمان</span>
+                            </div>
+                            <span class="chart-badge">مشتری vs بانک vs شرکت بیمه</span>
+                        </div>
+                        <div class="chart-canvas-wrapper">
+                            <canvas id="stakeholderChartCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs Section -->
+                <div class="tabs-card">
+                    <nav class="tabs-nav">
+                        <button class="tab-btn active" data-tab="tabWaterfall">💧 تراز افتتاحیه و جریان وجوه</button>
+                        <button class="tab-btn" data-tab="tabInsuranceStrategic" style="color: #7c3aed; font-weight: 800;">🏛️ تحلیل استراتژیک شرکت بیمه (مزایا، معایب و ریسک‌ها)</button>
+                        <button class="tab-btn" data-tab="tabMortality">💀 سناریوهای فوت و تعهدات بیمه</button>
+                        <button class="tab-btn" data-tab="tabYearly">📅 جدول خلاصه سالانه</button>
+                        <button class="tab-btn" data-tab="tabSensitivity">🎛️ ماتریس تحلیل حساسیت</button>
+                        <button class="tab-btn" data-tab="tabMonthly">📑 گردش تفصیلی ماه به ماه</button>
+                    </nav>
+
+                    <!-- تب ۱: تراز افتتاحیه -->
+                    <div class="tab-content active" id="tabWaterfall">
+                        <div class="alert-box alert-info">
+                            <span>ℹ️</span>
+                            <div>
+                                <strong>تسهیم وجوه در نقطه صفر قرارداد:</strong>
+                                از مجموع ۱۰۰ میلیون تومان کل قرارداد (۴۰ میلیون نقد + ۶۰ میلیون وام)، پس از کسر کارمزدهای بانک و بیمه، مبلغ خالص اولیه به صندوق سرمایه‌گذاری واریز می‌گردد. همچنین سپرده مسدود ۴٪ پس از ماه ۱۲ به اندوخته بازگردانده می‌شود.
+                            </div>
+                        </div>
+
+                        <div class="waterfall-cards">
+                            <div class="wf-card">
+                                <div class="wf-title">آورده نقدی بیمه‌گذار</div>
+                                <div class="wf-val" id="wfCustomerCash">--</div>
+                            </div>
+                            <div class="wf-card">
+                                <div class="wf-title">تسهیلات اعطایی بانک</div>
+                                <div class="wf-val" id="wfBankLoan">--</div>
+                            </div>
+                            <div class="wf-card">
+                                <div class="wf-title">کارمزد ۶.۵٪ بانک</div>
+                                <div class="wf-val" style="color: #dc2626;" id="wfBankFee">--</div>
+                            </div>
+                            <div class="wf-card">
+                                <div class="wf-title">سپرده مسدود ۴٪ بانک</div>
+                                <div class="wf-val" style="color: #b45309;" id="wfBankBlocked">--</div>
+                            </div>
+                            <div class="wf-card">
+                                <div class="wf-title">هزینه بیمه‌گری ۵٪</div>
+                                <div class="wf-val" style="color: #dc2626;" id="wfUnderwriting">--</div>
+                            </div>
+                            <div class="wf-card">
+                                <div class="wf-title">پوشش فوت ۵٪</div>
+                                <div class="wf-val" style="color: #dc2626;" id="wfLifeCover">--</div>
+                            </div>
+                            <div class="wf-card">
+                                <div class="wf-title">کارمزد نماینده فروش</div>
+                                <div class="wf-val" style="color: #dc2626;" id="wfAgentFee">--</div>
+                            </div>
+                            <div class="wf-card wf-final">
+                                <div class="wf-title">خالص واریزی به صندوق</div>
+                                <div class="wf-val" id="wfNetFund">--</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1.5rem; background-color: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem;">مشخصات اقساط ماهانه وام:</h4>
+                            <div style="display: flex; gap: 2rem; flex-wrap: wrap; font-size: 0.85rem;">
+                                <div>مبلغ هر قسط ماهانه: <strong id="wfMonthlyInstallment" style="color: #0284c7;">--</strong></div>
+                                <div>مجموع کل اقساط پرداختی: <strong id="wfTotalInstallments">--</strong></div>
+                                <div>کل سود تسهیلات دریافتی بانک: <strong id="wfTotalInterest" style="color: #16a34a;">--</strong></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- تب اختصاصی: تحلیل استراتژیک شرکت بیمه -->
+                    <div class="tab-content" id="tabInsuranceStrategic">
+                        <!-- هدر خلاصه شاخص‌های بیمه‌گر -->
+                        <div class="insurance-analysis-header">
+                            <h3 style="font-size: 1.1rem; font-weight: 800; color: #4c1d95; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>🏛️</span>
+                                <span>ارزیابی هوشمند موقعیت شرکت بیمه بر اساس متغیرهای فعلی</span>
+                            </h3>
+                            <p style="font-size: 0.84rem; color: #6b21a8; margin-top: 0.35rem;">
+                                این بخش به صورت پویا اثرات مالی، اعتباری، اکچوئری و ریسک‌های تعهد به بانک را بر حسب ارقام تنظیمی شما ارزیابی می‌کند.
+                            </p>
+
+                            <div class="ins-stats-grid">
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">کل جذب نقدینگی پرونده</div>
+                                    <div class="stat-val" id="insStatInflow">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">سود قطعی بیمه‌گری (۵٪)</div>
+                                    <div class="stat-val" style="color: #059669;" id="insStatUnderwriting">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">کارمزد مستمر سبدگردانی</div>
+                                    <div class="stat-val" id="insStatAum">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">سود خالص کل انتظاری</div>
+                                    <div class="stat-val" style="color: #059669;" id="insStatNetProfit">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">پوشش وثیقه وام در سال ۱</div>
+                                    <div class="stat-val" id="insStatCoverageY1">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">ماه پوشش ۱۰۰٪ وثیقه وام</div>
+                                    <div class="stat-val" id="insStatSafeMonth">--</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- جعبه هشدارهای فعال و بحرانی -->
+                        <div class="active-warnings-box" id="insActiveWarningsBox" style="display: none;">
+                            <h4>
+                                <span>⚠️</span>
+                                <span>هشدارهای مهم اکچوئری و ریسک تعهدات (Active Warnings)</span>
+                            </h4>
+                            <ul id="insWarningsList"></ul>
+                        </div>
+
+                        <!-- چیدمان دو ستونه مزایا و معایب -->
+                        <div class="strategic-dual-col">
+                            <!-- ستون مزایا -->
+                            <div class="pros-column">
+                                <div class="column-title">
+                                    <span>✨</span>
+                                    <span>مزایای کلیدی برای شرکت بیمه (Advantages & Opportunities)</span>
+                                </div>
+                                <div id="insProsContainer" style="display: flex; flex-direction: column; gap: 0.9rem;">
+                                    <!-- با جاوااسکریپت پر می‌شود -->
+                                </div>
+                            </div>
+
+                            <!-- ستون معایب و ریسک‌ها -->
+                            <div class="cons-column">
+                                <div class="column-title">
+                                    <span>⚠️</span>
+                                    <span>معایب، ریسک‌ها و چالش‌ها (Risks & Disadvantages)</span>
+                                </div>
+                                <div id="insConsContainer" style="display: flex; flex-direction: column; gap: 0.9rem;">
+                                    <!-- با جاوااسکریپت پر می‌شود -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- توصیه‌های استراتژیک برای هیئت مدیره بیمه -->
+                        <div class="recommendations-box">
+                            <h4>
+                                <span>🎯</span>
+                                <span>توصیه‌های سیاستی و اکچوئری جهت الحاق به قرارداد با بانک سامان</span>
+                            </h4>
+                            <ul id="insRecommendationsList"></ul>
+                        </div>
+                    </div>
+
+                    <!-- تب ۲: سناریوهای فوت -->
+                    <div class="tab-content" id="tabMortality">
+                        <div class="alert-box alert-warning">
+                            <span>⚠️</span>
+                            <div>
+                                <strong>تعهدات در صورت فوت بیمه‌گذار:</strong>
+                                طبق قرارداد، در صورت فوت بیمه‌گذار در هر مقطع زمانی، شرکت بیمه مکلف به پرداخت <strong>سرمایه فوت + اندوخته تجمیعی صندوق</strong> است. مانده اقساط تسهیلات مستقیماً از محل این وجوه با بانک تسویه شده و مازاد آن به وراث قانونی پرداخت می‌شود (بانک هرگز در معرض سوخت وام قرار ندارد).
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>سال فوت</th>
+                                        <th>سرمایه فوت تعهد بیمه</th>
+                                        <th>ارزش اندوخته صندوق در آن زمان</th>
+                                        <th>مانده بدهی وام قابل تسویه به بانک</th>
+                                        <th>خالص دریافتی خانواده بیمه‌گذار</th>
+                                        <th>کل پرداختی بیمه‌گذار تا زمان فوت</th>
+                                        <th>اهرم حمایتی بیمه</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mortalityTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- تب ۳: خلاصه سالانه -->
+                    <div class="tab-content" id="tabYearly">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>سال</th>
+                                        <th>کل پرداختی تا این سال</th>
+                                        <th>ارزش صندوق (ناخالص)</th>
+                                        <th>مانده بدهی وام</th>
+                                        <th>ارزش بازخرید خالص (اسمی)</th>
+                                        <th>ارزش واقعی (تعدیل با تورم)</th>
+                                        <th>سود/زیان اسمی بیمه‌گذار</th>
+                                        <th>درصد بازده اسمی</th>
+                                        <th>وضعیت بازگشت سرمایه</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="yearlyTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- تب ۴: تحلیل حساسیت -->
+                    <div class="tab-content" id="tabSensitivity">
+                        <div class="alert-box alert-info">
+                            <span>🎛️</span>
+                            <div>
+                                <strong>ماتریس تحلیل حساسیت سناریوهای اقتصادی:</strong>
+                                تأثیر تغییرات همزمان بازده صندوق سرمایه‌گذاری و نرخ تورم کشور بر نقطه سربه‌سر و سود ۱۰ ساله بیمه‌گذار:
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>نرخ بازده صندوق</th>
+                                        <th>نرخ سود وام</th>
+                                        <th>نرخ تورم سالانه</th>
+                                        <th>ماه سربه‌سر اسمی</th>
+                                        <th>سود خالص ۵ ساله</th>
+                                        <th>سود خالص ۱۰ ساله (اسمی)</th>
+                                        <th>ارزش واقعی روز در سال ۱۰</th>
+                                        <th>نرخ بازده داخلی (IRR)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sensitivityTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- تب ۵: گردش تفصیلی ماه به ماه -->
+                    <div class="tab-content" id="tabMonthly">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ماه</th>
+                                        <th>قسط ماهانه</th>
+                                        <th>اصل قسط</th>
+                                        <th>سود قسط</th>
+                                        <th>مانده بدهی وام</th>
+                                        <th>اندوخته کل صندوق</th>
+                                        <th>ارزش بازخرید خالص</th>
+                                        <th>کل پرداختی تجمیعی</th>
+                                        <th>سود/زیان تا این ماه</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="monthlyTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <footer class="app-footer">
+            طراحی و توسعه سامانه شبیه‌ساز مالی مدل Bancassurance با معماری تحت وب .NET 8 و C# | مجهز به تحلیل اکچوئری و شبیه‌سازی تورم
+        </footer>
+    </div>
+
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
