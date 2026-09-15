@@ -310,7 +310,9 @@ public class CalculationService : ICalculationService
         // ۸. تحلیل حساسیت (Sensitivity Analysis Matrix)
         result.SensitivityAnalysis = GenerateSensitivityAnalysis(input);
 
-        // ۹. تحلیل استراتژیک، مزایا، معایب و ریسک‌های اختصاصی شرکت بیمه
+        // ۹. تحلیل استراتژیک، مزایا، معایب و ریسک‌های اختصاصی از ۳ زاویه (بیمه‌گذار، بانک، بیمه)
+        result.CustomerAnalysis = GenerateCustomerStrategicAnalysis(input, result);
+        result.BankAnalysis = GenerateBankStrategicAnalysis(input, result);
         result.InsuranceAnalysis = GenerateInsuranceStrategicAnalysis(input, result);
 
         return result;
@@ -571,6 +573,202 @@ public class CalculationService : ICalculationService
         if (age < 50) return 0.0045m;
         if (age < 60) return 0.0095m;
         return 0.0180m;
+    }
+
+    private CustomerStrategicAnalysis GenerateCustomerStrategicAnalysis(ContractInputModel input, SimulationResultModel result)
+    {
+        var analysis = new CustomerStrategicAnalysis
+        {
+            InitialCashOutlay = result.EffectiveCustomerInitialPayment,
+            TotalPayments = result.CustomerTotalPayments,
+            FinalNominalWealth = result.CustomerFinalNominalFund,
+            FinalRealPurchasingPower = result.MonthlySchedule.Last().NetSurrenderValueReal,
+            NominalIRR = result.CustomerAnnualIRR,
+            RealIRR = result.CustomerRealIRR,
+            NominalBreakevenMonth = result.NominalBreakevenMonth,
+            RealBreakevenMonth = result.RealBreakevenMonth,
+            InitialLeverageRatio = input.CustomerInitialCash > 0 ? (input.TotalPolicyValue / input.CustomerInitialCash) : 0m
+        };
+
+        // ۱. مزایا و فرصت‌ها (Advantages)
+        analysis.Advantages.Add(new StrategicItem
+        {
+            Title = "اهرم مالی ۲.۵ برابری در نقطه شروع (Financial Leverage)",
+            Category = "تأمین مالی و سرمایه‌گذاری",
+            ImpactLevel = "بسیار بالا",
+            MonetaryValue = input.BankLoanAmount,
+            Description = $"مشتری با پرداخت تنها {input.CustomerInitialCash:N0} تومان آورده نقدی، از طریق وام {input.BankLoanAmount:N0} تومانی بانک سامان، صاحب یک سرمایه‌گذاری {input.TotalPolicyValue:N0} تومانی می‌شود که بازدهی مرکب آن از روز اول روی کل سرمایه محاسبه می‌گردد."
+        });
+
+        analysis.Advantages.Add(new StrategicItem
+        {
+            Title = "دریافت تسهیلات بانکی بدون نیاز به ضامن و وثیقه ملکی",
+            Category = "سهولت اعتباری",
+            ImpactLevel = "بالا",
+            Description = "تسهیلات بانکی با وثیقه‌گذاری خود بیمه‌نامه و تعهد رسمی شرکت بیمه پرداخت می‌شود و بیمه‌گذار نیازی به معرفی ضامن کارمند، چک تضمین یا وثیقه‌گذاری ملکی ندارد."
+        });
+
+        analysis.Advantages.Add(new StrategicItem
+        {
+            Title = "پوشش حمایتی بیمه عمر و تسویه خودکار وام در صورت فوت",
+            Category = "امنیت خانواده و پوشش بیمه‌ای",
+            ImpactLevel = "بسیار بالا",
+            MonetaryValue = input.LifeCoverageCapital,
+            Description = $"در صورت فوت ناگهانی، خانواده علاوه بر دریافت سرمایه فوت {input.LifeCoverageCapital:N0} تومانی و اندوخته خالص، از بازپرداخت اقساط وام معاف بوده و مانده بدهی مستقیماً توسط بیمه با بانک تسویه می‌شود."
+        });
+
+        analysis.Advantages.Add(new StrategicItem
+        {
+            Title = "سود مرکب بلندمدت و انباشت ثروت بازنشستگی",
+            Category = "رشد دارایی",
+            ImpactLevel = "بالا",
+            MonetaryValue = result.CustomerNominalGain,
+            Description = $"با تسویه اقساط در ماه {input.BankLoanTenureMonths}، کل اندوخته صندوق به صورت تصاعدی رشد کرده و ثروت اسمی نهایی به {result.CustomerFinalNominalFund:N0} تومان می‌رسد که سودی معادل {result.CustomerNominalGain:N0} تومان را رقم می‌زند."
+        });
+
+        // ۲. معایب، ریسک‌ها و چالش‌ها (Disadvantages & Risks)
+        analysis.DisadvantagesAndRisks.Add(new StrategicItem
+        {
+            Title = "فشار نقدینگی اقساط ماهانه در ۲ سال اول",
+            Category = "جریان نقدی و تعهد ماهانه",
+            ImpactLevel = "بالا",
+            MonetaryValue = result.MonthlyInstallment,
+            Description = $"بیمه‌گذار موظف به پرداخت ماهانه {result.MonthlyInstallment:N0} تومان قسط وام به مدت {input.BankLoanTenureMonths} ماه است که عدم پرداخت به‌موقع، مشمول جریمه دیرکرد بانکی خواهد شد."
+        });
+
+        analysis.DisadvantagesAndRisks.Add(new StrategicItem
+        {
+            Title = "زیان مالی در صورت انصراف و بازخرید پیش از موعد در ۲۴ ماه نخست",
+            Category = "نقدشوندگی و دوره بازگشت",
+            ImpactLevel = "بحرانی",
+            Description = $"در ماه‌های ابتدایی به دلیل کسر کارمزدهای اولیه بیمه و بانک، ارزش بازخرید کمتر از مجموع پرداختی‌هاست. نقطه سربه‌سر اسمی در ماه {(result.NominalBreakevenMonth.HasValue ? result.NominalBreakevenMonth.Value.ToString() : "نامشخص")} رخ می‌دهد."
+        });
+
+        if (input.AnnualInflationRate > input.FundAnnualReturnRate)
+        {
+            analysis.DisadvantagesAndRisks.Add(new StrategicItem
+            {
+                Title = "افت قدرت خرید واقعی ناشی از تورم فراتر از بازده صندوق",
+                Category = "ریسک اقتصاد کلان و تورم",
+                ImpactLevel = "بسیار بالا",
+                Description = $"نرخ تورم سالانه ({input.AnnualInflationRate * 100:N0}٪) از نرخ بازده پیش‌بینی‌شده صندوق ({input.FundAnnualReturnRate * 100:N0}٪) بیشتر است. این شکاف تورمی باعث می‌شود بازده واقعی تعدیل‌شده با تورم کاهش یابد."
+            });
+        }
+
+        // ۳. هشدارهای فعال (Active Warnings)
+        if (result.NominalBreakevenMonth > 24)
+        {
+            analysis.CriticalWarnings.Add($"دوره سربه‌سر اسمی ({result.NominalBreakevenMonth} ماه) طولانی‌تر از دوره بازپرداخت وام است؛ بنابراین سودآوری بیمه‌گذار پس از تسویه کامل اقساط آغاز می‌گردد.");
+        }
+        if (result.CustomerRealIRR < 0)
+        {
+            analysis.CriticalWarnings.Add($"بازده داخلی واقعی پس از تورم ({result.CustomerRealIRR * 100:N1}٪) منفی است؛ این طرح در شرایط تورم افسارگسیخته فعلی بیشتر نقش پوشش خطر فوت و پس‌انداز انضباطی را دارد تا سوداگری.");
+        }
+        if (result.MonthlyInstallment > (input.CustomerInitialCash * 0.15m))
+        {
+            analysis.CriticalWarnings.Add($"قسط ماهانه ({result.MonthlyInstallment:N0} تومان) قابل‌توجه است؛ بیمه‌گذار باید از استطاعت مالی خود برای پرداخت ماهانه منظم اطمینان یابد.");
+        }
+
+        // ۴. توصیه‌های استراتژیک (Recommendations)
+        analysis.StrategicRecommendations.Add("پرهیز از بازخرید زودهنگام بیمه‌نامه حداقل تا قبل از سال ۳ جهت عبور ایمن از دوره بازگشت سرمایه.");
+        analysis.StrategicRecommendations.Add("اتصال حساب واریز حقوق یا حساب فعال نزد بانک سامان برای پرداخت خودکار اقساط بدون دیرکرد.");
+        analysis.StrategicRecommendations.Add("استفاده از سبدهای دارایی پربازده‌تر (مانند صندوق‌های سهامی یا طلا) در شرایط تورم بالای ۴۰ درصد.");
+
+        return analysis;
+    }
+
+    private BankStrategicAnalysis GenerateBankStrategicAnalysis(ContractInputModel input, SimulationResultModel result)
+    {
+        var analysis = new BankStrategicAnalysis
+        {
+            LoanPrincipalGranted = input.BankLoanAmount,
+            UpfrontFeeCollected = result.BankFeeAmount,
+            BlockedDepositBenefit = result.Stakeholders.BankBlockedDepositBenefit,
+            TotalInterestRevenue = result.TotalLoanInterestAmount,
+            TotalGrossRevenue = result.Stakeholders.BankTotalGrossRevenue,
+            EffectiveAnnualYieldAPR = result.BankEffectiveAPR,
+            DefaultRiskRate = 0m,
+            CollateralCoverageRatioAtStart = input.BankLoanAmount > 0 ? (result.NetInitialFundDeposit / input.BankLoanAmount) * 100m : 100m
+        };
+
+        // ۱. مزایا و فرصت‌ها (Advantages)
+        analysis.Advantages.Add(new StrategicItem
+        {
+            Title = "ریسک اعتباری و سوخت تسهیلات صفر درصد (Zero NPL Risk)",
+            Category = "مدیریت ریسک اعتباری",
+            ImpactLevel = "بسیار بالا",
+            MonetaryValue = input.BankLoanAmount,
+            Description = $"به دلیل توثیق رسمی اندوخته صندوق سرمایه‌گذاری و تعهد پرداخت قطعی شرکت بیمه در صورت فوت یا انصراف، وام {input.BankLoanAmount:N0} تومانی بانک هرگز در معرض سوخت یا مطالبات مشکوک‌الوصول قرار ندارد."
+        });
+
+        analysis.Advantages.Add(new StrategicItem
+        {
+            Title = "کارمزد نقدی قطعی در بدو اعطا (Upfront Cash Fee)",
+            Category = "درآمد غیرمشاع نقدی",
+            ImpactLevel = "بالا",
+            MonetaryValue = result.BankFeeAmount,
+            Description = $"بانک در همان لحظه صدور تسهیلات مبلغ {result.BankFeeAmount:N0} تومان (معادل {input.BankFeeRate * 100:N1}٪ اصل وام) را به عنوان کارمزد پرونده به صورت نقدی دریافت و به عنوان سود قطعی شناسایی می‌کند."
+        });
+
+        analysis.Advantages.Add(new StrategicItem
+        {
+            Title = "رسوب رایگان سپرده مسدود نقدی برای مدت ۱۲ ماه",
+            Category = "تجهیز منابع ارزان‌قیمت",
+            ImpactLevel = "بالا",
+            MonetaryValue = result.BankBlockedDepositAmount,
+            Description = $"مبلغ {result.BankBlockedDepositAmount:N0} تومان (۴٪ وام) به مدت یک سال در حساب بانک بلوکه مانده و ارزش هزینه‌فرصت آن معادل {analysis.BlockedDepositBenefit:N0} تومان منفعت ترازنامه‌ای برای بانک ایجاد می‌نماید."
+        });
+
+        analysis.Advantages.Add(new StrategicItem
+        {
+            Title = "بازده مؤثر سالانه بالا (Effective APR)",
+            Category = "سودآوری تسهیلات",
+            ImpactLevel = "بسیار بالا",
+            Description = $"با احتساب کارمزد اولیه، سود تسهیلات {input.BankLoanAnnualInterestRate * 100:N0}٪ و رسوب سپرده مسدود، نرخ بازده مؤثر تسهیلات برای بانک به {analysis.EffectiveAnnualYieldAPR * 100:N1}٪ سالانه می‌رسد که فراتر از نرخ مصوب اسمی است."
+        });
+
+        analysis.Advantages.Add(new StrategicItem
+        {
+            Title = "جذب مشتریان وفادار جدید و رسوب اقساط در شبکه بانکی (Cross-selling)",
+            Category = "توسعه کسب‌وکار بانکی",
+            ImpactLevel = "متوسط",
+            Description = "هر فقره بیمه‌نامه منجر به افتتاح حساب جدید، الزام به واریز ۲۴ مرحله قسط و فرصت فروش سایر خدمات بانک سامان نظیر کارت اعتباری، اینترنت بانک و سپرده‌گذاری می‌گردد."
+        });
+
+        // ۲. معایب، ریسک‌ها و چالش‌ها (Disadvantages & Risks)
+        analysis.DisadvantagesAndRisks.Add(new StrategicItem
+        {
+            Title = "ریسک عملیاتی و حقوقی در فرآیند استرداد و تسویه با شرکت بیمه",
+            Category = "ریسک عملیاتی و حقوقی",
+            ImpactLevel = "متوسط",
+            Description = "در صورت نکول اقساط، تسویه بدهی با بیمه‌گر نیازمند اعلام رسمی، فسخ بیمه‌نامه و انتقال وجه از صندوق به بانک است که در صورت عدم اتصال خودکار سامانه‌ها می‌تواند با تأخیر همراه شود."
+        });
+
+        analysis.DisadvantagesAndRisks.Add(new StrategicItem
+        {
+            Title = "قفل خط اعتباری و سهمیه تسهیلات خرد بانک با نرخ مصوب ۲۳٪",
+            Category = "مدیریت نقدینگی و منابع",
+            ImpactLevel = "متوسط",
+            MonetaryValue = input.BankLoanAmount,
+            Description = "تخصیص خط اعتباری به این طرح بخشی از سهمیه تسهیلات خرد شعبه را اشغال می‌کند که در دوران انقباض پولی بانک مرکزی ممکن است با محدودیت سقف تسهیلات‌دهی روبرو شود."
+        });
+
+        // ۳. هشدارهای فعال (Active Warnings)
+        if (input.BankFeeRate < 0.05m)
+        {
+            analysis.CriticalWarnings.Add($"کارمزد بانکی ({input.BankFeeRate * 100:N1}٪) کمتر از نرخ بهینه عرف ۵ الی ۶.۵ درصد تنظیم شده است که بازده مؤثر بانک را کاهش می‌دهد.");
+        }
+        if (input.BankLoanTenureMonths > 36)
+        {
+            analysis.CriticalWarnings.Add($"دوره بازپرداخت ({input.BankLoanTenureMonths} ماه) طولانی‌تر از استاندارد ۳۶ ماه است که هزینه فرصت منابع بانک را در شرایط تورمی افزایش می‌دهد.");
+        }
+
+        // ۴. توصیه‌های استراتژیک (Recommendations)
+        analysis.StrategicRecommendations.Add("برقراری وب‌سرویس API برخط بین سامانه اعتبارات بانک سامان و سامانه صدور شرکت بیمه جهت وثیقه‌گذاری آنی.");
+        analysis.StrategicRecommendations.Add("اخذ وکالت بلاعزل برداشت مستقیم اقساط (Direct Debit) از حساب جاری/حقوق مشتری.");
+        analysis.StrategicRecommendations.Add("ارائه بسته‌های تشویقی کارمزد برای مشتریانی که اقساط را زودتر از موعد یا بدون تاخیر تسویه می‌کنند.");
+
+        return analysis;
     }
 
     private InsuranceStrategicAnalysis GenerateInsuranceStrategicAnalysis(ContractInputModel input, SimulationResultModel result)

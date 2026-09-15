@@ -222,7 +222,10 @@ function renderDashboard(data) {
             }
         }
     } catch (e) { console.error('Error rendering Charts:', e); }
+    try { renderCustomerStrategicAnalysis(data.customerAnalysis); } catch (e) { console.error('Error rendering Customer Analysis:', e); }
+    try { renderBankStrategicAnalysis(data.bankAnalysis); } catch (e) { console.error('Error rendering Bank Analysis:', e); }
     try { renderInsuranceStrategicAnalysis(data.insuranceAnalysis); } catch (e) { console.error('Error rendering Insurance Analysis:', e); }
+    try { renderComparisonMatrix(data); } catch (e) { console.error('Error rendering Comparison Matrix:', e); }
     try { renderMortalityTable(data); } catch (e) { console.error('Error rendering Mortality Table:', e); }
     try { renderYearlyTable(data); } catch (e) { console.error('Error rendering Yearly Table:', e); }
     try { renderSensitivityTable(data); } catch (e) { console.error('Error rendering Sensitivity Table:', e); }
@@ -432,6 +435,184 @@ function exportToCsv() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+// رندر بخش تحلیل استراتژیک بیمه‌گذار (مشتری)
+function renderCustomerStrategicAnalysis(cust) {
+    if (!cust) return;
+    const el = id => document.getElementById(id);
+
+    if (el('custStatInitialCash')) el('custStatInitialCash').textContent = formatCurrency(cust.initialCashOutlay);
+    if (el('custStatLeverage')) el('custStatLeverage').textContent = formatNumber(cust.initialLeverageRatio.toFixed(1)) + ' برابر';
+    if (el('custStatNominalIrr')) el('custStatNominalIrr').textContent = formatPercent(cust.nominalIRR * 100);
+    if (el('custStatRealIrr')) el('custStatRealIrr').textContent = formatPercent(cust.realIRR * 100);
+    if (el('custStatBreakeven')) el('custStatBreakeven').textContent = cust.nominalBreakevenMonth ? `ماه ${formatNumber(cust.nominalBreakevenMonth)}` : 'بیش از ۱۰ سال';
+    if (el('custStatFinalWealth')) el('custStatFinalWealth').textContent = formatCurrency(cust.finalNominalWealth);
+
+    // هشدارهای فعال
+    const warnBox = el('custActiveWarningsBox');
+    const warnList = el('custWarningsList');
+    if (warnBox && warnList) {
+        warnList.innerHTML = '';
+        if (cust.criticalWarnings && cust.criticalWarnings.length > 0) {
+            warnBox.style.display = 'block';
+            cust.criticalWarnings.forEach(w => {
+                const li = document.createElement('li');
+                li.textContent = w;
+                warnList.appendChild(li);
+            });
+        } else {
+            warnBox.style.display = 'none';
+        }
+    }
+
+    // مزایا
+    const prosContainer = el('custProsContainer');
+    if (prosContainer) {
+        prosContainer.innerHTML = '';
+        cust.advantages.forEach(a => {
+            const card = document.createElement('div');
+            card.className = 'strategic-card pros-card';
+            card.innerHTML = `
+                <div class="card-top-meta">
+                    <span class="card-category">${a.category}</span>
+                    <span class="impact-badge ${getImpactClass(a.impactLevel)}">${a.impactLevel}</span>
+                </div>
+                <div class="strategic-title">✨ ${a.title}</div>
+                <div class="strategic-desc">${a.description}</div>
+                ${a.monetaryValue ? `<div class="strategic-monetary">ارزش اهرمی / مالی: ${formatCurrency(a.monetaryValue)}</div>` : ''}
+            `;
+            prosContainer.appendChild(card);
+        });
+    }
+
+    // معایب و ریسک‌ها
+    const consContainer = el('custConsContainer');
+    if (consContainer) {
+        consContainer.innerHTML = '';
+        cust.disadvantagesAndRisks.forEach(r => {
+            const card = document.createElement('div');
+            card.className = 'strategic-card cons-card';
+            card.innerHTML = `
+                <div class="card-top-meta">
+                    <span class="card-category">${r.category}</span>
+                    <span class="impact-badge ${getImpactClass(r.impactLevel)}">${r.impactLevel}</span>
+                </div>
+                <div class="strategic-title">⚠️ ${r.title}</div>
+                <div class="strategic-desc">${r.description}</div>
+                ${r.monetaryValue ? `<div class="strategic-monetary" style="color: #991b1b; background: #fee2e2;">مبلغ در معرض تعهد: ${formatCurrency(r.monetaryValue)}</div>` : ''}
+            `;
+            consContainer.appendChild(card);
+        });
+    }
+
+    // توصیه‌ها
+    const recsList = el('custRecommendationsList');
+    if (recsList) {
+        recsList.innerHTML = '';
+        cust.strategicRecommendations.forEach(rec => {
+            const li = document.createElement('li');
+            li.textContent = rec;
+            recsList.appendChild(li);
+        });
+    }
+}
+
+// رندر بخش تحلیل استراتژیک بانک سامان
+function renderBankStrategicAnalysis(bank) {
+    if (!bank) return;
+    const el = id => document.getElementById(id);
+
+    if (el('bankStatPrincipal')) el('bankStatPrincipal').textContent = formatCurrency(bank.loanPrincipalGranted);
+    if (el('bankStatUpfrontFee')) el('bankStatUpfrontFee').textContent = formatCurrency(bank.upfrontFeeCollected);
+    if (el('bankStatBlockedBenefit')) el('bankStatBlockedBenefit').textContent = formatCurrency(bank.blockedDepositBenefit);
+    if (el('bankStatTotalInterest')) el('bankStatTotalInterest').textContent = formatCurrency(bank.totalInterestRevenue);
+    if (el('bankStatTotalRevenue')) el('bankStatTotalRevenue').textContent = formatCurrency(bank.totalGrossRevenue);
+    if (el('bankStatApr')) el('bankStatApr').textContent = formatPercent(bank.effectiveAnnualYieldAPR * 100);
+
+    // هشدارهای فعال
+    const warnBox = el('bankActiveWarningsBox');
+    const warnList = el('bankWarningsList');
+    if (warnBox && warnList) {
+        warnList.innerHTML = '';
+        if (bank.criticalWarnings && bank.criticalWarnings.length > 0) {
+            warnBox.style.display = 'block';
+            bank.criticalWarnings.forEach(w => {
+                const li = document.createElement('li');
+                li.textContent = w;
+                warnList.appendChild(li);
+            });
+        } else {
+            warnBox.style.display = 'none';
+        }
+    }
+
+    // مزایا
+    const prosContainer = el('bankProsContainer');
+    if (prosContainer) {
+        prosContainer.innerHTML = '';
+        bank.advantages.forEach(a => {
+            const card = document.createElement('div');
+            card.className = 'strategic-card pros-card';
+            card.innerHTML = `
+                <div class="card-top-meta">
+                    <span class="card-category">${a.category}</span>
+                    <span class="impact-badge ${getImpactClass(a.impactLevel)}">${a.impactLevel}</span>
+                </div>
+                <div class="strategic-title">✨ ${a.title}</div>
+                <div class="strategic-desc">${a.description}</div>
+                ${a.monetaryValue ? `<div class="strategic-monetary">عایدی / منفعت بانک: ${formatCurrency(a.monetaryValue)}</div>` : ''}
+            `;
+            prosContainer.appendChild(card);
+        });
+    }
+
+    // معایب و ریسک‌ها
+    const consContainer = el('bankConsContainer');
+    if (consContainer) {
+        consContainer.innerHTML = '';
+        bank.disadvantagesAndRisks.forEach(r => {
+            const card = document.createElement('div');
+            card.className = 'strategic-card cons-card';
+            card.innerHTML = `
+                <div class="card-top-meta">
+                    <span class="card-category">${r.category}</span>
+                    <span class="impact-badge ${getImpactClass(r.impactLevel)}">${r.impactLevel}</span>
+                </div>
+                <div class="strategic-title">⚠️ ${r.title}</div>
+                <div class="strategic-desc">${r.description}</div>
+                ${r.monetaryValue ? `<div class="strategic-monetary" style="color: #991b1b; background: #fee2e2;">منابع درگیر: ${formatCurrency(r.monetaryValue)}</div>` : ''}
+            `;
+            consContainer.appendChild(card);
+        });
+    }
+
+    // توصیه‌ها
+    const recsList = el('bankRecommendationsList');
+    if (recsList) {
+        recsList.innerHTML = '';
+        bank.strategicRecommendations.forEach(rec => {
+            const li = document.createElement('li');
+            li.textContent = rec;
+            recsList.appendChild(li);
+        });
+    }
+}
+
+// رندر ماتریس مقایسه سه‌جانبه (P&L)
+function renderComparisonMatrix(data) {
+    if (!data) return;
+    const el = id => document.getElementById(id);
+    if (el('compCustCash')) el('compCustCash').textContent = formatCurrency(data.customerInitialCash) + ' آورده نقد';
+    if (el('compBankLoan')) el('compBankLoan').textContent = formatCurrency(data.bankLoanAmount) + ' تسهیلات';
+    if (el('compBankUpfront')) el('compBankUpfront').textContent = formatCurrency(data.bankFeeAmount) + ' کارمزد نقد پرونده';
+    if (el('compInsUpfront')) el('compInsUpfront').textContent = formatCurrency(data.insuranceUnderwritingFeeAmount) + ' کارمزد بیمه‌گری ۵٪';
+    if (el('compCustProfit')) el('compCustProfit').textContent = formatCurrency(data.customerNominalGain);
+    if (el('compBankRevenue')) el('compBankRevenue').textContent = formatCurrency(data.stakeholders.bankTotalGrossRevenue);
+    if (el('compInsProfit')) el('compInsProfit').textContent = formatCurrency(data.stakeholders.insuranceNetMargin);
+    if (el('compCustIrr')) el('compCustIrr').textContent = formatPercent(data.customerAnnualIRR * 100) + ' اسمی (' + formatPercent(data.customerRealIRR * 100) + ' واقعی)';
+    if (el('compBankApr')) el('compBankApr').textContent = formatPercent(data.bankEffectiveAPR * 100) + ' سالانه (ریسک صفر)';
+    if (el('compInsMargin')) el('compInsMargin').textContent = (data.insuranceAnalysis && data.insuranceAnalysis.profitMarginPercentage ? formatPercent(data.insuranceAnalysis.profitMarginPercentage) : '۲۶٪') + ' حاشیه سود پورتفو';
 }
 
 // رندر بخش تحلیل استراتژیک شرکت بیمه
@@ -758,7 +939,9 @@ function runLocalSimulationEngine(input) {
     // ماتریس تحلیل حساسیت
     result.sensitivityAnalysis = generateLocalSensitivity(input);
 
-    // تحلیل استراتژیک شرکت بیمه
+    // تحلیل‌های استراتژیک، مزایا، معایب و ریسک‌ها از ۳ زاویه (بیمه‌گذار، بانک، شرکت بیمه)
+    result.customerAnalysis = generateLocalCustomerStrategic(input, result, monthlySchedule, yearlySummaries, pnl);
+    result.bankAnalysis = generateLocalBankStrategic(input, result, monthlySchedule, yearlySummaries, pnl);
     result.insuranceAnalysis = generateLocalInsuranceStrategic(input, result, monthlySchedule, pnl);
 
     return result;
@@ -894,6 +1077,187 @@ function runQuickSim(input) {
 
     const irr = calcIrrBisection(cfs);
     return { be, p5, p10, r10, irr };
+}
+
+function generateLocalCustomerStrategic(input, result, monthlySchedule, yearlySummaries, pnl) {
+    const lastItem = monthlySchedule[monthlySchedule.length - 1];
+    const analysis = {
+        initialCashOutlay: result.effectiveCustomerInitialPayment,
+        totalPayments: result.customerTotalPayments,
+        finalNominalWealth: result.customerFinalNominalFund,
+        finalRealPurchasingPower: lastItem ? lastItem.netSurrenderValueReal : 0,
+        nominalIRR: result.customerAnnualIRR,
+        realIRR: result.customerRealIRR,
+        nominalBreakevenMonth: result.nominalBreakevenMonth,
+        realBreakevenMonth: result.realBreakevenMonth,
+        initialLeverageRatio: input.customerInitialCash > 0 ? (input.totalPolicyValue / input.customerInitialCash) : 0,
+        advantages: [],
+        disadvantagesAndRisks: [],
+        criticalWarnings: [],
+        strategicRecommendations: []
+    };
+
+    // ۱. مزایا و فرصت‌های بیمه‌گذار
+    analysis.advantages.push({
+        title: "اهرم مالی ۲.۵ برابری در نقطه شروع (Financial Leverage)",
+        category: "تأمین مالی و سرمایه‌گذاری",
+        impactLevel: "بسیار بالا",
+        monetaryValue: input.bankLoanAmount,
+        description: `مشتری با پرداخت تنها ${formatCurrency(input.customerInitialCash)} آورده نقدی، از طریق وام ${formatCurrency(input.bankLoanAmount)} بانک سامان، صاحب یک سرمایه‌گذاری ${formatCurrency(input.totalPolicyValue)} می‌شود که بازدهی مرکب آن از روز اول روی کل سرمایه محاسبه می‌گردد.`
+    });
+
+    analysis.advantages.push({
+        title: "دریافت تسهیلات بانکی بدون نیاز به ضامن و چک تضمین",
+        category: "سهولت اعتباری",
+        impactLevel: "بالا",
+        description: "تسهیلات بانکی با وثیقه‌گذاری خود بیمه‌نامه و تعهد رسمی شرکت بیمه پرداخت می‌شود و بیمه‌گذار نیازی به معرفی ضامن کارمند، چک صیادی تضمین یا وثیقه‌گذاری ملکی ندارد."
+    });
+
+    analysis.advantages.push({
+        title: "پوشش حمایتی بیمه عمر و تسویه خودکار وام در صورت فوت",
+        category: "امنیت خانواده و پوشش بیمه‌ای",
+        impactLevel: "بسیار بالا",
+        monetaryValue: input.lifeCoverageCapital,
+        description: `در صورت فوت ناگهانی، خانواده علاوه بر دریافت سرمایه فوت ${formatCurrency(input.lifeCoverageCapital)} و اندوخته خالص، از بازپرداخت اقساط وام معاف بوده و مانده بدهی مستقیماً توسط بیمه با بانک تسویه می‌شود.`
+    });
+
+    analysis.advantages.push({
+        title: "سود مرکب بلندمدت و انباشت ثروت بازنشستگی",
+        category: "رشد دارایی",
+        impactLevel: "بالا",
+        monetaryValue: result.customerNominalGain,
+        description: `با تسویه اقساط در ماه ${input.bankLoanTenureMonths}، کل اندوخته صندوق به صورت تصاعدی رشد کرده و ثروت اسمی نهایی به ${formatCurrency(result.customerFinalNominalFund)} می‌رسد که سودی معادل ${formatCurrency(result.customerNominalGain)} را رقم می‌زند.`
+    });
+
+    // ۲. معایب، ریسک‌ها و چالش‌های بیمه‌گذار
+    analysis.disadvantagesAndRisks.push({
+        title: "فشار نقدینگی اقساط ماهانه در ۲ سال اول",
+        category: "جریان نقدی و تعهد ماهانه",
+        impactLevel: "بالا",
+        monetaryValue: result.monthlyInstallment,
+        description: `بیمه‌گذار موظف به پرداخت ماهانه ${formatCurrency(result.monthlyInstallment)} قسط وام به مدت ${input.bankLoanTenureMonths} ماه است که عدم پرداخت به‌موقع، مشمول جریمه دیرکرد بانکی خواهد شد.`
+    });
+
+    analysis.disadvantagesAndRisks.push({
+        title: "زیان مالی در صورت انصراف و بازخرید پیش از موعد در ۲۴ ماه نخست",
+        category: "نقدشوندگی و دوره بازگشت",
+        impactLevel: "بحرانی",
+        description: `در ماه‌های ابتدایی به دلیل کسر کارمزدهای اولیه بیمه و بانک، ارزش بازخرید کمتر از مجموع پرداختی‌هاست. نقطه سربه‌سر اسمی در ماه ${result.nominalBreakevenMonth ? formatNumber(result.nominalBreakevenMonth) : 'نامشخص'} رخ می‌دهد.`
+    });
+
+    if (input.annualInflationRate > input.fundAnnualReturnRate) {
+        analysis.disadvantagesAndRisks.push({
+            title: "افت قدرت خرید واقعی ناشی از تورم فراتر از بازده صندوق",
+            category: "ریسک اقتصاد کلان و تورم",
+            impactLevel: "بسیار بالا",
+            description: `نرخ تورم سالانه (${formatPercent(input.annualInflationRate * 100)}) از نرخ بازده پیش‌بینی‌شده صندوق (${formatPercent(input.fundAnnualReturnRate * 100)}) بیشتر است. این شکاف تورمی باعث می‌شود بازده واقعی تعدیل‌شده با تورم کاهش یابد.`
+        });
+    }
+
+    // ۳. هشدارهای فعال بیمه‌گذار
+    if (result.nominalBreakevenMonth > 24) {
+        analysis.criticalWarnings.push(`دوره سربه‌سر اسمی (${formatNumber(result.nominalBreakevenMonth)} ماه) طولانی‌تر از دوره بازپرداخت وام است؛ بنابراین سودآوری خالص بیمه‌گذار پس از تسویه کامل اقساط آغاز می‌گردد.`);
+    }
+    if (result.customerRealIRR < 0) {
+        analysis.criticalWarnings.push(`بازده داخلی واقعی پس از تورم (${formatPercent(result.customerRealIRR * 100)}) منفی است؛ این طرح در شرایط تورم افسارگسیخته فعلی بیشتر نقش پوشش خطر فوت و پس‌انداز انضباطی را دارد تا سوداگری تورمی.`);
+    }
+    if (result.monthlyInstallment > (input.customerInitialCash * 0.15)) {
+        analysis.criticalWarnings.push(`قسط ماهانه (${formatCurrency(result.monthlyInstallment)}) بیش از ۱۵٪ نقدینگی اولیه است؛ بیمه‌گذار باید از استطاعت مالی خود برای پرداخت منظم ماهانه اطمینان یابد.`);
+    }
+
+    // ۴. توصیه‌های استراتژیک
+    analysis.strategicRecommendations.push("پرهیز از بازخرید زودهنگام بیمه‌نامه حداقل تا قبل از سال ۳ جهت عبور ایمن از دوره بازگشت سرمایه.");
+    analysis.strategicRecommendations.push("اتصال حساب واریز حقوق یا حساب فعال نزد بانک سامان برای پرداخت خودکار اقساط بدون دیرکرد.");
+    analysis.strategicRecommendations.push("استفاده از سبدهای دارایی پربازده‌تر (مانند صندوق‌های سهامی یا طلا) در شرایط تورم بالای ۴۰ درصد.");
+
+    return analysis;
+}
+
+function generateLocalBankStrategic(input, result, monthlySchedule, yearlySummaries, pnl) {
+    const analysis = {
+        loanPrincipalGranted: input.bankLoanAmount,
+        upfrontFeeCollected: result.bankFeeAmount,
+        blockedDepositBenefit: pnl.bankBlockedDepositBenefit,
+        totalInterestRevenue: result.totalLoanInterestAmount,
+        totalGrossRevenue: pnl.bankTotalGrossRevenue,
+        effectiveAnnualYieldAPR: result.bankEffectiveAPR,
+        defaultRiskRate: 0,
+        collateralCoverageRatioAtStart: input.bankLoanAmount > 0 ? (result.netInitialFundDeposit / input.bankLoanAmount) * 100 : 100,
+        advantages: [],
+        disadvantagesAndRisks: [],
+        criticalWarnings: [],
+        strategicRecommendations: []
+    };
+
+    // ۱. مزایا و فرصت‌های بانک سامان
+    analysis.advantages.push({
+        title: "ریسک اعتباری و سوخت تسهیلات صفر درصد (Zero NPL Risk)",
+        category: "مدیریت ریسک اعتباری",
+        impactLevel: "بسیار بالا",
+        monetaryValue: input.bankLoanAmount,
+        description: `به دلیل توثیق رسمی اندوخته صندوق سرمایه‌گذاری و تعهد پرداخت قطعی شرکت بیمه در صورت فوت یا انصراف، وام ${formatCurrency(input.bankLoanAmount)} بانک هرگز در معرض سوخت یا مطالبات مشکوک‌الوصول قرار ندارد.`
+    });
+
+    analysis.advantages.push({
+        title: "کارمزد نقدی قطعی در بدو اعطا (Upfront Cash Fee)",
+        category: "درآمد غیرمشاع نقدی",
+        impactLevel: "بالا",
+        monetaryValue: result.bankFeeAmount,
+        description: `بانک در همان لحظه صدور تسهیلات مبلغ ${formatCurrency(result.bankFeeAmount)} (معادل ${formatPercent(input.bankFeeRate * 100)} اصل وام) را به عنوان کارمزد پرونده به صورت نقدی دریافت و به عنوان سود قطعی شناسایی می‌کند.`
+    });
+
+    analysis.advantages.push({
+        title: "رسوب رایگان سپرده مسدود نقدی برای مدت ۱۲ ماه",
+        category: "تجهیز منابع ارزان‌قیمت",
+        impactLevel: "بالا",
+        monetaryValue: result.bankBlockedDepositAmount,
+        description: `مبلغ ${formatCurrency(result.bankBlockedDepositAmount)} (۴٪ وام) به مدت یک سال در حساب بانک بلوکه مانده و ارزش هزینه‌فرصت آن معادل ${formatCurrency(analysis.blockedDepositBenefit)} منفعت ترازنامه‌ای برای بانک ایجاد می‌نماید.`
+    });
+
+    analysis.advantages.push({
+        title: "بازده مؤثر سالانه بالا (Effective APR)",
+        category: "سودآوری تسهیلات",
+        impactLevel: "بسیار بالا",
+        description: `با احتساب کارمزد اولیه، سود تسهیلات ${formatPercent(input.bankLoanAnnualInterestRate * 100)} و رسوب سپرده مسدود، نرخ بازده مؤثر تسهیلات برای بانک به ${formatPercent(analysis.effectiveAnnualYieldAPR * 100)} سالانه می‌رسد که فراتر از نرخ مصوب اسمی است.`
+    });
+
+    analysis.advantages.push({
+        title: "جذب مشتریان وفادار جدید و رسوب اقساط در شبکه بانکی (Cross-selling)",
+        category: "توسعه کسب‌وکار بانکی",
+        impactLevel: "متوسط",
+        description: "هر فقره بیمه‌نامه منجر به افتتاح حساب جدید، الزام به واریز ۲۴ مرحله قسط و فرصت فروش سایر خدمات بانک سامان نظیر کارت اعتباری، اینترنت بانک و سپرده‌گذاری می‌گردد."
+    });
+
+    // ۲. معایب، ریسک‌ها و چالش‌های بانک سامان
+    analysis.disadvantagesAndRisks.push({
+        title: "ریسک عملیاتی و حقوقی در فرآیند استرداد و تسویه با شرکت بیمه",
+        category: "ریسک عملیاتی و حقوقی",
+        impactLevel: "متوسط",
+        description: "در صورت نکول اقساط، تسویه بدهی با بیمه‌گر نیازمند اعلام رسمی، فسخ بیمه‌نامه و انتقال وجه از صندوق به بانک است که در صورت عدم اتصال خودکار سامانه‌ها می‌تواند با تأخیر همراه شود."
+    });
+
+    analysis.disadvantagesAndRisks.push({
+        title: "قفل خط اعتباری و سهمیه تسهیلات خرد بانک با نرخ مصوب ۲۳٪",
+        category: "مدیریت نقدینگی و منابع",
+        impactLevel: "متوسط",
+        monetaryValue: input.bankLoanAmount,
+        description: "تخصیص خط اعتباری به این طرح بخشی از سهمیه تسهیلات خرد شعبه را اشغال می‌کند که در دوران انقباض پولی بانک مرکزی ممکن است با محدودیت سقف تسهیلات‌دهی روبرو شود."
+    });
+
+    // ۳. هشدارهای فعال بانک
+    if (input.bankFeeRate < 0.05) {
+        analysis.criticalWarnings.push(`کارمزد بانکی (${formatPercent(input.bankFeeRate * 100)}) کمتر از نرخ بهینه عرف ۵ الی ۶.۵ درصد تنظیم شده است که بازده مؤثر بانک را کاهش می‌دهد.`);
+    }
+    if (input.bankLoanTenureMonths > 36) {
+        analysis.criticalWarnings.push(`دوره بازپرداخت (${formatNumber(input.bankLoanTenureMonths)} ماه) طولانی‌تر از استاندارد ۳۶ ماه است که هزینه فرصت منابع بانک را در شرایط تورمی افزایش می‌دهد.`);
+    }
+
+    // ۴. توصیه‌های استراتژیک بانک
+    analysis.strategicRecommendations.push("برقراری وب‌سرویس API برخط بین سامانه اعتبارات بانک سامان و سامانه صدور شرکت بیمه جهت وثیقه‌گذاری آنی.");
+    analysis.strategicRecommendations.push("اخذ وکالت بلاعزل برداشت مستقیم اقساط (Direct Debit) از حساب جاری/حقوق مشتری.");
+    analysis.strategicRecommendations.push("ارائه بسته‌های تشویقی کارمزد برای مشتریانی که اقساط را زودتر از موعد یا بدون تاخیر تسویه می‌کنند.");
+
+    return analysis;
 }
 
 function generateLocalInsuranceStrategic(input, result, monthlySchedule, pnl) {

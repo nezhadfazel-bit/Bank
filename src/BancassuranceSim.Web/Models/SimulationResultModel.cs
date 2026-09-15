@@ -43,6 +43,8 @@ public class SimulationResultModel
     public List<MortalityScenarioItem> MortalityScenarios { get; set; } = new();
     public List<SensitivityPoint> SensitivityAnalysis { get; set; } = new();
 
-    // ۷. تحلیل استراتژیک، مزایا و ریسک‌های اختصاصی شرکت بیمه
+    // ۷. تحلیل‌های استراتژیک، مزایا، معایب و ریسک‌های اختصاصی از ۳ زاویه (بیمه‌گذار، بانک، بیمه)
+    public CustomerStrategicAnalysis CustomerAnalysis { get; set; } = new();
+    public BankStrategicAnalysis BankAnalysis { get; set; } = new();
     public InsuranceStrategicAnalysis InsuranceAnalysis { get; set; } = new();
 }

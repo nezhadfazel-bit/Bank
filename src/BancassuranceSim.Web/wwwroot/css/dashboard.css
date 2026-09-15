@@ -781,6 +781,79 @@ body {
     font-size: 0.8rem;
 }
 
+/* هدر و کارت‌های تفکیک‌شده ۳ ذی‌نفع */
+.customer-analysis-header {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 1px solid #bbf7d0;
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.customer-analysis-header h3 {
+    color: #166534;
+}
+.customer-analysis-header p {
+    color: #15803d;
+}
+
+.bank-analysis-header {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #bae6fd;
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.bank-analysis-header h3 {
+    color: #0369a1;
+}
+.bank-analysis-header p {
+    color: #0284c7;
+}
+
+.ins-stats-grid.customer-grid .ins-stat-card {
+    border-top: 3px solid #10b981;
+}
+.ins-stats-grid.bank-grid .ins-stat-card {
+    border-top: 3px solid #0284c7;
+}
+.ins-stats-grid.ins-grid .ins-stat-card {
+    border-top: 3px solid #7c3aed;
+}
+
+/* جدول ماتریس مقایسه سه‌جانبه */
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    text-align: right;
+    margin-top: 0.5rem;
+}
+.comparison-table th {
+    padding: 0.85rem 1rem;
+    font-weight: 800;
+    border-bottom: 2px solid #cbd5e1;
+}
+.comparison-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+    line-height: 1.5;
+}
+.comparison-table tr:hover td {
+    background-color: #f8fafc;
+}
+.col-customer {
+    background-color: #f0fdf4 !important;
+    border-left: 2px solid #bbf7d0;
+}
+.col-bank {
+    background-color: #f0f9ff !important;
+    border-left: 2px solid #bae6fd;
+}
+.col-insurance {
+    background-color: #faf5ff !important;
+}
+
 /* Footer */
 .app-footer {
     text-align: center;

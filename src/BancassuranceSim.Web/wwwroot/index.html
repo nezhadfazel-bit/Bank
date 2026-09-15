@@ -786,6 +786,79 @@ body {
     font-size: 0.8rem;
 }
 
+/* هدر و کارت‌های تفکیک‌شده ۳ ذی‌نفع */
+.customer-analysis-header {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 1px solid #bbf7d0;
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.customer-analysis-header h3 {
+    color: #166534;
+}
+.customer-analysis-header p {
+    color: #15803d;
+}
+
+.bank-analysis-header {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #bae6fd;
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.bank-analysis-header h3 {
+    color: #0369a1;
+}
+.bank-analysis-header p {
+    color: #0284c7;
+}
+
+.ins-stats-grid.customer-grid .ins-stat-card {
+    border-top: 3px solid #10b981;
+}
+.ins-stats-grid.bank-grid .ins-stat-card {
+    border-top: 3px solid #0284c7;
+}
+.ins-stats-grid.ins-grid .ins-stat-card {
+    border-top: 3px solid #7c3aed;
+}
+
+/* جدول ماتریس مقایسه سه‌جانبه */
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    text-align: right;
+    margin-top: 0.5rem;
+}
+.comparison-table th {
+    padding: 0.85rem 1rem;
+    font-weight: 800;
+    border-bottom: 2px solid #cbd5e1;
+}
+.comparison-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+    line-height: 1.5;
+}
+.comparison-table tr:hover td {
+    background-color: #f8fafc;
+}
+.col-customer {
+    background-color: #f0fdf4 !important;
+    border-left: 2px solid #bbf7d0;
+}
+.col-bank {
+    background-color: #f0f9ff !important;
+    border-left: 2px solid #bae6fd;
+}
+.col-insurance {
+    background-color: #faf5ff !important;
+}
+
 /* Footer */
 .app-footer {
     text-align: center;
@@ -1093,16 +1166,247 @@ body {
                 <!-- Tabs Section -->
                 <div class="tabs-card">
                     <nav class="tabs-nav">
-                        <button class="tab-btn active" data-tab="tabWaterfall">💧 تراز افتتاحیه و جریان وجوه</button>
-                        <button class="tab-btn" data-tab="tabInsuranceStrategic" style="color: #7c3aed; font-weight: 800;">🏛️ تحلیل استراتژیک شرکت بیمه (مزایا، معایب و ریسک‌ها)</button>
-                        <button class="tab-btn" data-tab="tabMortality">💀 سناریوهای فوت و تعهدات بیمه</button>
-                        <button class="tab-btn" data-tab="tabYearly">📅 جدول خلاصه سالانه</button>
-                        <button class="tab-btn" data-tab="tabSensitivity">🎛️ ماتریس تحلیل حساسیت</button>
-                        <button class="tab-btn" data-tab="tabMonthly">📑 گردش تفصیلی ماه به ماه</button>
+                        <button class="tab-btn active" data-tab="tabCustomerStrategic" style="color: #059669; font-weight: 800;">👤 ۱. نگاه و تحلیل بیمه‌گذار (مشتری)</button>
+                        <button class="tab-btn" data-tab="tabBankStrategic" style="color: #0284c7; font-weight: 800;">🏦 ۲. نگاه و تحلیل بانک سامان</button>
+                        <button class="tab-btn" data-tab="tabInsuranceStrategic" style="color: #7c3aed; font-weight: 800;">🏛️ ۳. نگاه و تحلیل شرکت بیمه</button>
+                        <button class="tab-btn" data-tab="tabComparisonMatrix" style="color: #b45309; font-weight: 800;">⚖️ ۴. ماتریس مقایسه سه‌جانبه (P&L)</button>
+                        <button class="tab-btn" data-tab="tabWaterfall">💧 ۵. تراز افتتاحیه و گردش وجوه</button>
+                        <button class="tab-btn" data-tab="tabMortality">💀 ۶. سناریوهای فوت و تعهدات بیمه</button>
+                        <button class="tab-btn" data-tab="tabYearly">📅 ۷. جدول خلاصه سالانه</button>
+                        <button class="tab-btn" data-tab="tabSensitivity">🎛️ ۸. ماتریس تحلیل حساسیت</button>
+                        <button class="tab-btn" data-tab="tabMonthly">📑 ۹. گردش تفصیلی ماه به ماه</button>
                     </nav>
 
-                    <!-- تب ۱: تراز افتتاحیه -->
-                    <div class="tab-content active" id="tabWaterfall">
+                    <!-- تب ۱: تحلیل استراتژیک از نگاه بیمه‌گذار (مشتری) -->
+                    <div class="tab-content active" id="tabCustomerStrategic">
+                        <div class="customer-analysis-header">
+                            <h3 style="font-size: 1.1rem; font-weight: 800; color: #166534; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>👤</span>
+                                <span>ارزیابی هوشمند موقعیت بیمه‌گذار (مشتری) بر اساس متغیرهای فعلی</span>
+                            </h3>
+                            <p style="font-size: 0.84rem; color: #15803d; margin-top: 0.35rem;">
+                                این بخش مزایا، اهرم مالی وام، نرخ بازده واقعی در برابر تورم، ریسک اقساط ماهانه و دوره بازگشت سرمایه را از دیدگاه خریدار بیمه‌نامه ارزیابی می‌کند.
+                            </p>
+
+                            <div class="ins-stats-grid customer-grid">
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">آورده اولیه نقدی</div>
+                                    <div class="stat-val" id="custStatInitialCash">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">ضریب اهرم مالی تسهیلات</div>
+                                    <div class="stat-val" style="color: #059669;" id="custStatLeverage">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">بازده سالانه اسمی (IRR)</div>
+                                    <div class="stat-val" style="color: #059669;" id="custStatNominalIrr">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">بازده واقعی پس از تورم</div>
+                                    <div class="stat-val" id="custStatRealIrr">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">ماه سربه‌سر اسمی</div>
+                                    <div class="stat-val" id="custStatBreakeven">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">ارزش نهایی اندوخته (سال ۱۰)</div>
+                                    <div class="stat-val" style="color: #059669;" id="custStatFinalWealth">--</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- جعبه هشدارهای فعال بیمه‌گذار -->
+                        <div class="active-warnings-box" id="custActiveWarningsBox" style="display: none;">
+                            <h4>
+                                <span>⚠️</span>
+                                <span>هشدارهای مهم اقتصادی و نقدینگی بیمه‌گذار (Active Warnings)</span>
+                            </h4>
+                            <ul id="custWarningsList"></ul>
+                        </div>
+
+                        <!-- چیدمان دو ستونه مزایا و معایب بیمه‌گذار -->
+                        <div class="strategic-dual-col">
+                            <div class="pros-column">
+                                <div class="column-title">
+                                    <span>✨</span>
+                                    <span>مزایای کلیدی برای بیمه‌گذار (Advantages & Opportunities)</span>
+                                </div>
+                                <div id="custProsContainer" style="display: flex; flex-direction: column; gap: 0.9rem;"></div>
+                            </div>
+
+                            <div class="cons-column">
+                                <div class="column-title">
+                                    <span>⚠️</span>
+                                    <span>معایب، ریسک‌ها و چالش‌های بیمه‌گذار (Risks & Disadvantages)</span>
+                                </div>
+                                <div id="custConsContainer" style="display: flex; flex-direction: column; gap: 0.9rem;"></div>
+                            </div>
+                        </div>
+
+                        <!-- توصیه‌های استراتژیک برای بیمه‌گذار -->
+                        <div class="recommendations-box" style="margin-top: 1.5rem;">
+                            <h4>
+                                <span>🎯</span>
+                                <span>توصیه‌های راهبردی و مشاوره‌ای جهت اخذ تصمیم بهینه برای بیمه‌گذار</span>
+                            </h4>
+                            <ul id="custRecommendationsList"></ul>
+                        </div>
+                    </div>
+
+                    <!-- تب ۲: تحلیل استراتژیک از نگاه بانک سامان -->
+                    <div class="tab-content" id="tabBankStrategic">
+                        <div class="bank-analysis-header">
+                            <h3 style="font-size: 1.1rem; font-weight: 800; color: #0369a1; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>🏦</span>
+                                <span>ارزیابی هوشمند موقعیت بانک سامان بر اساس متغیرهای فعلی</span>
+                            </h3>
+                            <p style="font-size: 0.84rem; color: #0284c7; margin-top: 0.35rem;">
+                                این بخش عایدات نقدی و اقساطی، نرخ بازده مؤثر تسهیلات (APR)، تضمین وثیقه‌ای ۱۰۰٪ و فرصت‌های فروش متقابل (Cross-selling) را از زاویه بانک ارزیابی می‌کند.
+                            </p>
+
+                            <div class="ins-stats-grid bank-grid">
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">اصل وام اعطایی</div>
+                                    <div class="stat-val" id="bankStatPrincipal">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">کارمزد نقدی قطعی (۶.۵٪)</div>
+                                    <div class="stat-val" style="color: #0284c7;" id="bankStatUpfrontFee">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">منفعت رسوب سپرده مسدود</div>
+                                    <div class="stat-val" id="bankStatBlockedBenefit">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">کل سود تسهیلات دوره وام</div>
+                                    <div class="stat-val" style="color: #0284c7;" id="bankStatTotalInterest">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">کل عایدی ناخالص بانک</div>
+                                    <div class="stat-val" style="color: #059669;" id="bankStatTotalRevenue">--</div>
+                                </div>
+                                <div class="ins-stat-card">
+                                    <div class="stat-label">نرخ بازده مؤثر سالانه (APR)</div>
+                                    <div class="stat-val" style="color: #0284c7;" id="bankStatApr">--</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- جعبه هشدارهای فعال بانک -->
+                        <div class="active-warnings-box" id="bankActiveWarningsBox" style="display: none;">
+                            <h4>
+                                <span>⚠️</span>
+                                <span>هشدارهای اعتباری، نقدینگی و حقوقی بانک سامان (Active Warnings)</span>
+                            </h4>
+                            <ul id="bankWarningsList"></ul>
+                        </div>
+
+                        <!-- چیدمان دو ستونه مزایا و معایب بانک سامان -->
+                        <div class="strategic-dual-col">
+                            <div class="pros-column">
+                                <div class="column-title">
+                                    <span>✨</span>
+                                    <span>مزایای کلیدی برای بانک سامان (Advantages & Opportunities)</span>
+                                </div>
+                                <div id="bankProsContainer" style="display: flex; flex-direction: column; gap: 0.9rem;"></div>
+                            </div>
+
+                            <div class="cons-column">
+                                <div class="column-title">
+                                    <span>⚠️</span>
+                                    <span>معایب، ریسک‌ها و چالش‌های بانک سامان (Risks & Disadvantages)</span>
+                                </div>
+                                <div id="bankConsContainer" style="display: flex; flex-direction: column; gap: 0.9rem;"></div>
+                            </div>
+                        </div>
+
+                        <!-- توصیه‌های استراتژیک برای بانک سامان -->
+                        <div class="recommendations-box" style="margin-top: 1.5rem;">
+                            <h4>
+                                <span>🎯</span>
+                                <span>توصیه‌های سیاستی و اعتباری برای مدیریت ارشد و شعب بانک سامان</span>
+                            </h4>
+                            <ul id="bankRecommendationsList"></ul>
+                        </div>
+                    </div>
+
+                    <!-- تب ۴: ماتریس مقایسه سه‌جانبه (P&L و منافع ۳ طرف) -->
+                    <div class="tab-content" id="tabComparisonMatrix">
+                        <div class="alert-box alert-info">
+                            <span>⚖️</span>
+                            <div>
+                                <strong>ماتریس مقایسه سه‌جانبه سود، زیان و تعهدات (Tripartite Comparison):</strong>
+                                در این جدول مدل منافع، جریان‌های نقدی، نقطه اتکا، ریسک محوری و وضعیت برد-برد هر سه طرف قرارداد به صورت یکپارچه مقایسه شده است.
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="data-table comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 22%;">شاخص مقایسه‌ای</th>
+                                        <th style="width: 26%; background: #ecfdf5; color: #065f46;">👤 بیمه‌گذار (مشتری)</th>
+                                        <th style="width: 26%; background: #f0f9ff; color: #0369a1;">🏦 بانک سامان (تسهیلات‌دهنده)</th>
+                                        <th style="width: 26%; background: #faf5ff; color: #581c87;">🏛️ شرکت بیمه (بیمه‌گر و سرمایه‌گذار)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>هدف اصلی از ورود به طرح</strong></td>
+                                        <td class="col-customer">تشکیل اندوخته سرمایه‌گذاری با اهرم وام و پوشش فوت</td>
+                                        <td class="col-bank">اعطای تسهیلات خرد بدون ریسک اعتباری و کسب کارمزد نقدی</td>
+                                        <td class="col-insurance">جذب جهشی حق بیمه نقد و افزایش سهم بازار زندگی</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>آورده یا تعهد نقدی در نقطه صفر</strong></td>
+                                        <td class="col-customer" id="compCustCash">۴۰ میلیون تومان نقد</td>
+                                        <td class="col-bank" id="compBankLoan">۶۰ میلیون تومان تسهیلات</td>
+                                        <td class="col-insurance">تجهیز ۱۰۰ میلیون تومان بیمه‌نامه و صدور پوشش فوت</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>درآمد قطعی و بدون ریسک در روز اول</strong></td>
+                                        <td class="col-customer">صفر (نیازمند گذر زمان و رشد مرکب)</td>
+                                        <td class="col-bank" id="compBankUpfront" style="color: #0284c7; font-weight: 700;">--</td>
+                                        <td class="col-insurance" id="compInsUpfront" style="color: #7c3aed; font-weight: 700;">--</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>کل عایدی / سود خالص انتظاری</strong></td>
+                                        <td class="col-customer" id="compCustProfit" style="color: #059669; font-weight: 700;">--</td>
+                                        <td class="col-bank" id="compBankRevenue" style="color: #0284c7; font-weight: 700;">--</td>
+                                        <td class="col-insurance" id="compInsProfit" style="color: #7c3aed; font-weight: 700;">--</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>نرخ بازده بازدهی مؤثر سالانه</strong></td>
+                                        <td class="col-customer" id="compCustIrr">--</td>
+                                        <td class="col-bank" id="compBankApr">--</td>
+                                        <td class="col-insurance" id="compInsMargin">--</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>سطح ریسک اعتباری و نکول</strong></td>
+                                        <td class="col-customer">تعهد بازپرداخت ۲۴ ماهه اقساط</td>
+                                        <td class="col-bank" style="color: #059669; font-weight: 700;">صفر درصد (وثیقه کامل با تعهد بیمه)</td>
+                                        <td class="col-insurance">تعهد تسویه مانده وام به بانک در صورت بازخرید یا فوت</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>وضعیت در صورت فوت ناگهانی</strong></td>
+                                        <td class="col-customer" style="color: #059669; font-weight: 700;">تسویه خودکار وام + پرداخت مازاد به وراث</td>
+                                        <td class="col-bank" style="color: #059669; font-weight: 700;">وصول ۱۰۰٪ مطالبات فوری از محل سرمایه فوت</td>
+                                        <td class="col-insurance">پرداخت تعهد فوت و کسر مانده وام به نفع بانک</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>اثر تورم بالا (مثلاً ۴۰٪)</strong></td>
+                                        <td class="col-customer">فرسایش ارزش اقساط پرداختی اما کاهش سود واقعی نهایی</td>
+                                        <td class="col-bank">کاهش ارزش زمانی اقساط ثابت دریافتی در گذر زمان</td>
+                                        <td class="col-insurance">رشد اسمی سریع دارایی‌های صندوق تحت مدیریت (AUM)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- تب ۵: تراز افتتاحیه -->
+                    <div class="tab-content" id="tabWaterfall">
                         <div class="alert-box alert-info">
                             <span>ℹ️</span>
                             <div>

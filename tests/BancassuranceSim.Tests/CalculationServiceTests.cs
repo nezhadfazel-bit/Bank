@@ -151,4 +151,45 @@ public class CalculationServiceTests
         // Due to inflation, real equity must be strictly less than nominal equity
         Assert.True(lastYear.NetEquityReal < lastYear.NetEquityNominal);
     }
+
+    [Fact]
+    public void Calculate_ThreeStakeholderStrategicAnalyses_ArePopulatedWithProsAndCons()
+    {
+        // Arrange
+        var input = new ContractInputModel
+        {
+            TotalPolicyValue = 100_000_000m,
+            CustomerInitialCash = 40_000_000m,
+            BankLoanAmount = 60_000_000m,
+            BankFeeRate = 0.065m,
+            BankBlockedDepositRate = 0.04m,
+            BankLoanAnnualInterestRate = 0.23m,
+            BankLoanTenureMonths = 24,
+            FundAnnualReturnRate = 0.32m,
+            AnnualInflationRate = 0.40m,
+            SimulationYears = 10
+        };
+
+        // Act
+        var result = _sut.Calculate(input);
+
+        // Assert Customer Analysis
+        Assert.NotNull(result.CustomerAnalysis);
+        Assert.NotEmpty(result.CustomerAnalysis.Advantages);
+        Assert.NotEmpty(result.CustomerAnalysis.DisadvantagesAndRisks);
+        Assert.True(result.CustomerAnalysis.InitialLeverageRatio >= 2.5m);
+
+        // Assert Bank Analysis
+        Assert.NotNull(result.BankAnalysis);
+        Assert.NotEmpty(result.BankAnalysis.Advantages);
+        Assert.NotEmpty(result.BankAnalysis.DisadvantagesAndRisks);
+        Assert.Equal(0m, result.BankAnalysis.DefaultRiskRate);
+        Assert.True(result.BankAnalysis.EffectiveAnnualYieldAPR > 0.25m);
+
+        // Assert Insurance Analysis
+        Assert.NotNull(result.InsuranceAnalysis);
+        Assert.NotEmpty(result.InsuranceAnalysis.Advantages);
+        Assert.NotEmpty(result.InsuranceAnalysis.DisadvantagesAndRisks);
+        Assert.Equal(100_000_000m, result.InsuranceAnalysis.UpfrontCashInflow);
+    }
 }
