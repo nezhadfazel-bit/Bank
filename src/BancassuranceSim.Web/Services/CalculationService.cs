@@ -597,7 +597,7 @@ public class CalculationService : ICalculationService
             Category = "تأمین مالی و سرمایه‌گذاری",
             ImpactLevel = "بسیار بالا",
             MonetaryValue = input.BankLoanAmount,
-            Description = $"مشتری با پرداخت تنها {input.CustomerInitialCash:N0} تومان آورده نقدی، از طریق وام {input.BankLoanAmount:N0} تومانی بانک سامان، صاحب یک سرمایه‌گذاری {input.TotalPolicyValue:N0} تومانی می‌شود که بازدهی مرکب آن از روز اول روی کل سرمایه محاسبه می‌گردد."
+            Description = $"مشتری با پرداخت تنها {input.CustomerInitialCash:N0} تومان آورده نقدی، از طریق وام {input.BankLoanAmount:N0} تومانی بانک، صاحب یک سرمایه‌گذاری {input.TotalPolicyValue:N0} تومانی می‌شود که بازدهی مرکب آن از روز اول روی کل سرمایه محاسبه می‌گردد."
         });
 
         analysis.Advantages.Add(new StrategicItem
@@ -671,7 +671,7 @@ public class CalculationService : ICalculationService
 
         // ۴. توصیه‌های استراتژیک (Recommendations)
         analysis.StrategicRecommendations.Add("پرهیز از بازخرید زودهنگام بیمه‌نامه حداقل تا قبل از سال ۳ جهت عبور ایمن از دوره بازگشت سرمایه.");
-        analysis.StrategicRecommendations.Add("اتصال حساب واریز حقوق یا حساب فعال نزد بانک سامان برای پرداخت خودکار اقساط بدون دیرکرد.");
+        analysis.StrategicRecommendations.Add("اتصال حساب واریز حقوق یا حساب فعال نزد بانک برای پرداخت خودکار اقساط بدون دیرکرد.");
         analysis.StrategicRecommendations.Add("استفاده از سبدهای دارایی پربازده‌تر (مانند صندوق‌های سهامی یا طلا) در شرایط تورم بالای ۴۰ درصد.");
 
         return analysis;
@@ -732,7 +732,7 @@ public class CalculationService : ICalculationService
             Title = "جذب مشتریان وفادار جدید و رسوب اقساط در شبکه بانکی (Cross-selling)",
             Category = "توسعه کسب‌وکار بانکی",
             ImpactLevel = "متوسط",
-            Description = "هر فقره بیمه‌نامه منجر به افتتاح حساب جدید، الزام به واریز ۲۴ مرحله قسط و فرصت فروش سایر خدمات بانک سامان نظیر کارت اعتباری، اینترنت بانک و سپرده‌گذاری می‌گردد."
+            Description = "هر فقره بیمه‌نامه منجر به افتتاح حساب جدید، الزام به واریز ۲۴ مرحله قسط و فرصت فروش سایر خدمات بانک نظیر کارت اعتباری، اینترنت بانک و سپرده‌گذاری می‌گردد."
         });
 
         // ۲. معایب، ریسک‌ها و چالش‌ها (Disadvantages & Risks)
@@ -764,7 +764,7 @@ public class CalculationService : ICalculationService
         }
 
         // ۴. توصیه‌های استراتژیک (Recommendations)
-        analysis.StrategicRecommendations.Add("برقراری وب‌سرویس API برخط بین سامانه اعتبارات بانک سامان و سامانه صدور شرکت بیمه جهت وثیقه‌گذاری آنی.");
+        analysis.StrategicRecommendations.Add("برقراری وب‌سرویس API برخط بین سامانه اعتبارات بانک و سامانه صدور شرکت بیمه جهت وثیقه‌گذاری آنی.");
         analysis.StrategicRecommendations.Add("اخذ وکالت بلاعزل برداشت مستقیم اقساط (Direct Debit) از حساب جاری/حقوق مشتری.");
         analysis.StrategicRecommendations.Add("ارائه بسته‌های تشویقی کارمزد برای مشتریانی که اقساط را زودتر از موعد یا بدون تاخیر تسویه می‌کنند.");
 
@@ -845,10 +845,10 @@ public class CalculationService : ICalculationService
 
         analysis.Advantages.Add(new StrategicItem
         {
-            Title = "کاهش چشمگیر هزینه جذب مشتری (Low CAC) از طریق کانال بانک سامان",
+            Title = "کاهش چشمگیر هزینه جذب مشتری (Low CAC) از طریق کانال بانک",
             Category = "بازاریابی و توزیع",
             ImpactLevel = "بالا",
-            Description = "استفاده از شبکه گسترده شعب بانک سامان و بستر Bancassurance هزینه‌های سرسام‌آور بازاریابی، تبلیغات محیطی و پورسانت‌های سنگین شبکه سنتی نمایندگان را به حداقل ممکن می‌رساند."
+            Description = "استفاده از شبکه گسترده شعب بانک و بستر Bancassurance هزینه‌های سرسام‌آور بازاریابی، تبلیغات محیطی و پورسانت‌های سنگین شبکه سنتی نمایندگان را به حداقل ممکن می‌رساند."
         });
 
         analysis.Advantages.Add(new StrategicItem
@@ -891,7 +891,7 @@ public class CalculationService : ICalculationService
                 Title = "تعهد حقوقی به بانک جهت تسویه مانده تسهیلات (Guarantor Role)",
                 Category = "ریسک حقوقی و اعتباری",
                 ImpactLevel = "متوسط",
-                Description = "شرکت بیمه در برابر بانک سامان متعهد است که در صورت هرگونه عدم وصول اقساط، مانده تسهیلات را از محل اندوخته تسویه کند. هرچند ارزش صندوق وام را پوشش می‌دهد، اما فرآیند اداری و بلوکه شدن نقدینگی بر عهده بیمه است."
+                Description = "شرکت بیمه در برابر بانک متعهد است که در صورت هرگونه عدم وصول اقساط، مانده تسهیلات را از محل اندوخته تسویه کند. هرچند ارزش صندوق وام را پوشش می‌دهد، اما فرآیند اداری و بلوکه شدن نقدینگی بر عهده بیمه است."
             });
         }
 
@@ -900,7 +900,7 @@ public class CalculationService : ICalculationService
             Title = "ریسک فسخ زودهنگام و بازخرید (Early Surrender / Lapse Risk)",
             Category = "ریسک پایداری بیمه‌نامه",
             ImpactLevel = "بالا",
-            Description = "به دلیل کسر کارمزد ۶.۵٪ بانک، ۵٪ بیمه‌گری و ۵٪ پوشش فوت، ارزش بازخرید خالص تا ماه " + (result.NominalBreakevenMonth.HasValue ? result.NominalBreakevenMonth.Value.ToString() : "۲۴") + " به نقطه سربه‌سر نمی‌رسد. انصراف زودهنگام بیمه‌گذار موجب نارضایتی مشتری و چالش تسویه تسهیلات با بانک سامان خواهد شد."
+            Description = "به دلیل کسر کارمزد ۶.۵٪ بانک، ۵٪ بیمه‌گری و ۵٪ پوشش فوت، ارزش بازخرید خالص تا ماه " + (result.NominalBreakevenMonth.HasValue ? result.NominalBreakevenMonth.Value.ToString() : "۲۴") + " به نقطه سربه‌سر نمی‌رسد. انصراف زودهنگام بیمه‌گذار موجب نارضایتی مشتری و چالش تسویه تسهیلات با بانک خواهد شد."
         });
 
         if (input.AnnualInflationRate >= 0.35m)
@@ -959,7 +959,7 @@ public class CalculationService : ICalculationService
         analysis.StrategicRecommendations.Add("تنظیم شرط حداقل ماندگاری ۲ ساله: تعیین جریمه بازخرید در صورت انصراف در ۲ سال اول تا هزینه‌های بانکی و بیمه‌گری مستهلک شود.");
         analysis.StrategicRecommendations.Add("الزام سقف سنی ۵۰ سال برای پوشش فوت بدون معاینه پزشکی جهت مهار ریسک گزینش نامساعد.");
         analysis.StrategicRecommendations.Add("تضمین حداقل بازده تضمینی صندوق یا استفاده از صندوق‌های با درآمد ثابت و اهرمی معتبر برای پیشگیری از نوسانات منفی شدید.");
-        analysis.StrategicRecommendations.Add("مذاکره با بانک سامان برای تسهیم بخشی از کارمزد ۶.۵٪ بانک با شرکت بیمه به پاس ضمانت بازپرداخت اقساط توسط بیمه‌گر.");
+        analysis.StrategicRecommendations.Add("مذاکره با بانک برای تسهیم بخشی از کارمزد ۶.۵٪ بانک با شرکت بیمه به پاس ضمانت بازپرداخت اقساط توسط بیمه‌گر.");
 
         return analysis;
     }

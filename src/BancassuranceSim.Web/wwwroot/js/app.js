@@ -518,7 +518,7 @@ function renderCustomerStrategicAnalysis(cust) {
     }
 }
 
-// رندر بخش تحلیل استراتژیک بانک سامان
+// رندر بخش تحلیل استراتژیک بانک
 function renderBankStrategicAnalysis(bank) {
     if (!bank) return;
     const el = id => document.getElementById(id);
@@ -1103,7 +1103,7 @@ function generateLocalCustomerStrategic(input, result, monthlySchedule, yearlySu
         category: "تأمین مالی و سرمایه‌گذاری",
         impactLevel: "بسیار بالا",
         monetaryValue: input.bankLoanAmount,
-        description: `مشتری با پرداخت تنها ${formatCurrency(input.customerInitialCash)} آورده نقدی، از طریق وام ${formatCurrency(input.bankLoanAmount)} بانک سامان، صاحب یک سرمایه‌گذاری ${formatCurrency(input.totalPolicyValue)} می‌شود که بازدهی مرکب آن از روز اول روی کل سرمایه محاسبه می‌گردد.`
+        description: `مشتری با پرداخت تنها ${formatCurrency(input.customerInitialCash)} آورده نقدی، از طریق وام ${formatCurrency(input.bankLoanAmount)} بانک، صاحب یک سرمایه‌گذاری ${formatCurrency(input.totalPolicyValue)} می‌شود که بازدهی مرکب آن از روز اول روی کل سرمایه محاسبه می‌گردد.`
     });
 
     analysis.advantages.push({
@@ -1167,7 +1167,7 @@ function generateLocalCustomerStrategic(input, result, monthlySchedule, yearlySu
 
     // ۴. توصیه‌های استراتژیک
     analysis.strategicRecommendations.push("پرهیز از بازخرید زودهنگام بیمه‌نامه حداقل تا قبل از سال ۳ جهت عبور ایمن از دوره بازگشت سرمایه.");
-    analysis.strategicRecommendations.push("اتصال حساب واریز حقوق یا حساب فعال نزد بانک سامان برای پرداخت خودکار اقساط بدون دیرکرد.");
+    analysis.strategicRecommendations.push("اتصال حساب واریز حقوق یا حساب فعال نزد بانک برای پرداخت خودکار اقساط بدون دیرکرد.");
     analysis.strategicRecommendations.push("استفاده از سبدهای دارایی پربازده‌تر (مانند صندوق‌های سهامی یا طلا) در شرایط تورم بالای ۴۰ درصد.");
 
     return analysis;
@@ -1189,7 +1189,7 @@ function generateLocalBankStrategic(input, result, monthlySchedule, yearlySummar
         strategicRecommendations: []
     };
 
-    // ۱. مزایا و فرصت‌های بانک سامان
+    // ۱. مزایا و فرصت‌های بانک
     analysis.advantages.push({
         title: "ریسک اعتباری و سوخت تسهیلات صفر درصد (Zero NPL Risk)",
         category: "مدیریت ریسک اعتباری",
@@ -1225,10 +1225,10 @@ function generateLocalBankStrategic(input, result, monthlySchedule, yearlySummar
         title: "جذب مشتریان وفادار جدید و رسوب اقساط در شبکه بانکی (Cross-selling)",
         category: "توسعه کسب‌وکار بانکی",
         impactLevel: "متوسط",
-        description: "هر فقره بیمه‌نامه منجر به افتتاح حساب جدید، الزام به واریز ۲۴ مرحله قسط و فرصت فروش سایر خدمات بانک سامان نظیر کارت اعتباری، اینترنت بانک و سپرده‌گذاری می‌گردد."
+        description: "هر فقره بیمه‌نامه منجر به افتتاح حساب جدید، الزام به واریز ۲۴ مرحله قسط و فرصت فروش سایر خدمات بانک نظیر کارت اعتباری، اینترنت بانک و سپرده‌گذاری می‌گردد."
     });
 
-    // ۲. معایب، ریسک‌ها و چالش‌های بانک سامان
+    // ۲. معایب، ریسک‌ها و چالش‌های بانک
     analysis.disadvantagesAndRisks.push({
         title: "ریسک عملیاتی و حقوقی در فرآیند استرداد و تسویه با شرکت بیمه",
         category: "ریسک عملیاتی و حقوقی",
@@ -1253,7 +1253,7 @@ function generateLocalBankStrategic(input, result, monthlySchedule, yearlySummar
     }
 
     // ۴. توصیه‌های استراتژیک بانک
-    analysis.strategicRecommendations.push("برقراری وب‌سرویس API برخط بین سامانه اعتبارات بانک سامان و سامانه صدور شرکت بیمه جهت وثیقه‌گذاری آنی.");
+    analysis.strategicRecommendations.push("برقراری وب‌سرویس API برخط بین سامانه اعتبارات بانک و سامانه صدور شرکت بیمه جهت وثیقه‌گذاری آنی.");
     analysis.strategicRecommendations.push("اخذ وکالت بلاعزل برداشت مستقیم اقساط (Direct Debit) از حساب جاری/حقوق مشتری.");
     analysis.strategicRecommendations.push("ارائه بسته‌های تشویقی کارمزد برای مشتریانی که اقساط را زودتر از موعد یا بدون تاخیر تسویه می‌کنند.");
 
@@ -1326,10 +1326,10 @@ function generateLocalInsuranceStrategic(input, result, monthlySchedule, pnl) {
     });
 
     analysis.advantages.push({
-        title: "کاهش چشمگیر هزینه جذب مشتری (Low CAC) از طریق کانال بانک سامان",
+        title: "کاهش چشمگیر هزینه جذب مشتری (Low CAC) از طریق کانال بانک",
         category: "بازاریابی و توزیع",
         impactLevel: "بالا",
-        description: "استفاده از شبکه گسترده شعب بانک سامان و بستر Bancassurance هزینه‌های سرسام‌آور بازاریابی، تبلیغات محیطی و پورسانت‌های سنگین شبکه سنتی نمایندگان را به حداقل ممکن می‌رساند."
+        description: "استفاده از شبکه گسترده شعب بانک و بستر Bancassurance هزینه‌های سرسام‌آور بازاریابی، تبلیغات محیطی و پورسانت‌های سنگین شبکه سنتی نمایندگان را به حداقل ممکن می‌رساند."
     });
 
     analysis.advantages.push({
@@ -1364,7 +1364,7 @@ function generateLocalInsuranceStrategic(input, result, monthlySchedule, pnl) {
             title: "تعهد حقوقی به بانک جهت تسویه مانده تسهیلات (Guarantor Role)",
             category: "ریسک حقوقی و اعتباری",
             impactLevel: "متوسط",
-            description: "شرکت بیمه در برابر بانک سامان متعهد است که در صورت هرگونه عدم وصول اقساط، مانده تسهیلات را از محل اندوخته تسویه کند. هرچند ارزش صندوق وام را پوشش می‌دهد، اما فرآیند اداری و بلوکه شدن نقدینگی بر عهده بیمه است."
+            description: "شرکت بیمه در برابر بانک متعهد است که در صورت هرگونه عدم وصول اقساط، مانده تسهیلات را از محل اندوخته تسویه کند. هرچند ارزش صندوق وام را پوشش می‌دهد، اما فرآیند اداری و بلوکه شدن نقدینگی بر عهده بیمه است."
         });
     }
 
@@ -1372,7 +1372,7 @@ function generateLocalInsuranceStrategic(input, result, monthlySchedule, pnl) {
         title: "ریسک فسخ زودهنگام و بازخرید (Early Surrender / Lapse Risk)",
         category: "ریسک پایداری بیمه‌نامه",
         impactLevel: "بالا",
-        description: `به دلیل کسر کارمزد ۶.۵٪ بانک، ۵٪ بیمه‌گری و ۵٪ پوشش فوت، ارزش بازخرید خالص تا ماه ${result.nominalBreakevenMonth || 24} به نقطه سربه‌سر نمی‌رسد. انصراف زودهنگام بیمه‌گذار موجب نارضایتی مشتری و چالش تسویه تسهیلات با بانک سامان خواهد شد.`
+        description: `به دلیل کسر کارمزد ۶.۵٪ بانک، ۵٪ بیمه‌گری و ۵٪ پوشش فوت، ارزش بازخرید خالص تا ماه ${result.nominalBreakevenMonth || 24} به نقطه سربه‌سر نمی‌رسد. انصراف زودهنگام بیمه‌گذار موجب نارضایتی مشتری و چالش تسویه تسهیلات با بانک خواهد شد.`
     });
 
     if (input.annualInflationRate >= 0.35) {
@@ -1423,7 +1423,7 @@ function generateLocalInsuranceStrategic(input, result, monthlySchedule, pnl) {
         "تنظیم شرط حداقل ماندگاری ۲ ساله: تعیین جریمه بازخرید در صورت انصراف در ۲ سال اول تا هزینه‌های بانکی و بیمه‌گری مستهلک شود.",
         "الزام سقف سنی ۵۰ سال برای پوشش فوت بدون معاینه پزشکی جهت مهار ریسک گزینش نامساعد.",
         "تضمین حداقل بازده تضمینی صندوق یا استفاده از صندوق‌های با درآمد ثابت و اهرمی معتبر برای پیشگیری از نوسانات منفی شدید.",
-        "مذاکره با بانک سامان برای تسهیم بخشی از کارمزد ۶.۵٪ بانک با شرکت بیمه به پاس ضمانت بازپرداخت اقساط توسط بیمه‌گر."
+        "مذاکره با بانک برای تسهیم بخشی از کارمزد ۶.۵٪ بانک با شرکت بیمه به پاس ضمانت بازپرداخت اقساط توسط بیمه‌گر."
     ];
 
     return analysis;
