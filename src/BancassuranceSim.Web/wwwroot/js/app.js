@@ -25,11 +25,49 @@ const currentModel = {
     insuredAge: 35
 };
 
-// راه‌اندازی اولیه
-document.addEventListener('DOMContentLoaded', () => {
+// توابع فرمت‌بندی سراسری اعداد به ریال/تومان و درصد
+function formatCurrency(val) {
+    if (val === undefined || val === null) return '۰';
+    return Number(Math.round(val)).toLocaleString('fa-IR') + ' تومان';
+}
+
+function formatNumber(val) {
+    if (val === undefined || val === null) return '۰';
+    return Number(Math.round(val)).toLocaleString('fa-IR');
+}
+
+function formatPercent(val) {
+    if (val === undefined || val === null) return '۰٪';
+    return Number(val.toFixed(1)).toLocaleString('fa-IR') + '٪';
+}
+
+if (typeof window !== 'undefined') {
+    window.formatCurrency = formatCurrency;
+    window.formatNumber = formatNumber;
+    window.formatPercent = formatPercent;
+}
+
+// راه‌اندازی مطمئن اپلیکیشن در صورت آماده بودن قبلی DOM
+function startApp() {
     initEventListeners();
+    // اجرای آنی و بلادرنگ محاسبات کلاینت جهت نمایش لحظه‌ای تمام اعداد و نمودارها (۰ میلی‌ثانیه)
+    try {
+        const initialData = runLocalSimulationEngine(currentModel);
+        currentData = initialData;
+        renderDashboard(initialData);
+    } catch (e) {
+        console.error('Initial local render error:', e);
+    }
+    // تلاش برای دریافت از وب‌سرویس در صورت فعال بودن سرور .NET Core
     fetchSimulation();
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startApp);
+} else {
+    // سند قبلاً لود شده است
+    startApp();
+}
 
 function initEventListeners() {
     // اتصال اسلایدرها و فیلدهای عددی
@@ -141,11 +179,16 @@ function triggerRecalculate() {
 
 async function fetchSimulation() {
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1500);
+
         const response = await fetch('/api/simulation/calculate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(currentModel)
+            body: JSON.stringify(currentModel),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         if (response.ok) {
             const data = await response.json();
@@ -167,7 +210,18 @@ function renderDashboard(data) {
     if (!data) return;
     try { renderKPIs(data); } catch (e) { console.error('Error rendering KPIs:', e); }
     try { renderWaterfall(data); } catch (e) { console.error('Error rendering Waterfall:', e); }
-    try { initOrUpdateCharts(data); } catch (e) { console.error('Error rendering Charts:', e); }
+    try { 
+        if (typeof initOrUpdateCharts === 'function') {
+            initOrUpdateCharts(data); 
+            if (typeof Chart === 'undefined') {
+                setTimeout(() => {
+                    if (typeof initOrUpdateCharts === 'function' && typeof Chart !== 'undefined') {
+                        initOrUpdateCharts(data);
+                    }
+                }, 400);
+            }
+        }
+    } catch (e) { console.error('Error rendering Charts:', e); }
     try { renderInsuranceStrategicAnalysis(data.insuranceAnalysis); } catch (e) { console.error('Error rendering Insurance Analysis:', e); }
     try { renderMortalityTable(data); } catch (e) { console.error('Error rendering Mortality Table:', e); }
     try { renderYearlyTable(data); } catch (e) { console.error('Error rendering Yearly Table:', e); }
