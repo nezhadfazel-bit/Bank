@@ -1016,6 +1016,10 @@ body {
                                 <input type="number" id="agentCommissionRate" value="2" step="0.5">
                             </div>
                         </div>
+                        <div class="form-switch">
+                            <input type="checkbox" id="agentCommissionFromCustomer" checked>
+                            <label for="agentCommissionFromCustomer">کسر کارمزد نماینده از آورده نقدی مشتری</label>
+                        </div>
                         <div class="form-group">
                             <label>سن بیمه‌گذار: <span class="val-display" id="insuredAgeVal">۳۵ سال</span></label>
                             <div class="input-slider-wrapper">
@@ -1067,8 +1071,8 @@ body {
                             <span>🎯</span>
                             <span>نقطه سربه‌سر اسمی</span>
                         </div>
-                        <div class="kpi-value" id="kpiBreakevenVal">در حال محاسبه...</div>
-                        <div class="kpi-sub" id="kpiBreakevenSub">زمان برابری ارزش بازخرید با کل پرداختی‌ها</div>
+                        <div class="kpi-value" id="kpiBreakevenVal"><span style="color: #059669;">ماه ۱۴</span></div>
+                        <div class="kpi-sub" id="kpiBreakevenSub">معادل <strong>سال ۲ و ماه ۲</strong> | سربه‌سر با تورم: <strong>نامشخص</strong></div>
                     </div>
 
                     <div class="kpi-card kpi-customer">
@@ -1076,8 +1080,8 @@ body {
                             <span>📈</span>
                             <span>نرخ بازده داخلی بیمه‌گذار (IRR)</span>
                         </div>
-                        <div class="kpi-value" id="kpiIrrVal">--</div>
-                        <div class="kpi-sub" id="kpiIrrSub">بازده سالانه کل سرمایه‌گذاری</div>
+                        <div class="kpi-value" id="kpiIrrVal">۲۷٫۸٪</div>
+                        <div class="kpi-sub" id="kpiIrrSub">بازده واقعی پس از کسر تورم: <strong>-۸٫۷٪</strong></div>
                     </div>
 
                     <div class="kpi-card kpi-inflation">
@@ -1085,8 +1089,8 @@ body {
                             <span>💰</span>
                             <span>ارزش نهایی اندوخته خالص</span>
                         </div>
-                        <div class="kpi-value" id="kpiFundVal">--</div>
-                        <div class="kpi-sub" id="kpiFundSub">پس از تسویه کامل تسهیلات بانکی</div>
+                        <div class="kpi-value" id="kpiFundVal">۱٬۱۵۱٬۷۵۴٬۶۷۷ تومان</div>
+                        <div class="kpi-sub" id="kpiFundSub">کل پرداختی: <strong>۹۶٬۹۱۸٬۲۳۵ تومان</strong> (سود: ۱٬۰۵۴٬۸۳۶٬۴۴۲ تومان)</div>
                     </div>
 
                     <div class="kpi-card kpi-bank">
@@ -1094,8 +1098,8 @@ body {
                             <span>🏛️</span>
                             <span>نرخ بازده مؤثر تسهیلات بانک</span>
                         </div>
-                        <div class="kpi-value" id="kpiBankVal">--</div>
-                        <div class="kpi-sub" id="kpiBankSub">شامل کارمزد و رسوب سپرده مسدود</div>
+                        <div class="kpi-value" id="kpiBankVal">۳۰٫۲٪</div>
+                        <div class="kpi-sub" id="kpiBankSub">کل عایدی ناخالص: <strong>۲۹٬۴۴۰٬۶۱۴ تومان</strong> | ریسک نکول: <strong>صفر</strong></div>
                     </div>
 
                     <div class="kpi-card kpi-insurance">
@@ -1103,8 +1107,8 @@ body {
                             <span>🛡️</span>
                             <span>حاشیه سود شرکت بیمه</span>
                         </div>
-                        <div class="kpi-value" id="kpiInsVal">--</div>
-                        <div class="kpi-sub" id="kpiInsSub">درآمد بیمه‌گری منهای خسارت انتظاری</div>
+                        <div class="kpi-value" id="kpiInsVal">۲۶٬۵۸۸٬۹۴۴ تومان</div>
+                        <div class="kpi-sub" id="kpiInsSub">درآمد بیمه‌گری: <strong>۵٬۰۰۰٬۰۰۰ تومان</strong> | خسارت انتظاری: <strong>۱٬۹۸۱٬۶۶۳ تومان</strong></div>
                     </div>
                 </div>
 
@@ -1418,44 +1422,44 @@ body {
                         <div class="waterfall-cards">
                             <div class="wf-card">
                                 <div class="wf-title">آورده نقدی بیمه‌گذار</div>
-                                <div class="wf-val" id="wfCustomerCash">--</div>
+                                <div class="wf-val" id="wfCustomerCash">۴۰٬۰۰۰٬۰۰۰ تومان</div>
                             </div>
                             <div class="wf-card">
                                 <div class="wf-title">تسهیلات اعطایی بانک</div>
-                                <div class="wf-val" id="wfBankLoan">--</div>
+                                <div class="wf-val" id="wfBankLoan">۶۰٬۰۰۰٬۰۰۰ تومان</div>
                             </div>
                             <div class="wf-card">
                                 <div class="wf-title">کارمزد ۶.۵٪ بانک</div>
-                                <div class="wf-val" style="color: #dc2626;" id="wfBankFee">--</div>
+                                <div class="wf-val" style="color: #dc2626;" id="wfBankFee">-۳٬۹۰۰٬۰۰۰ تومان</div>
                             </div>
                             <div class="wf-card">
                                 <div class="wf-title">سپرده مسدود ۴٪ بانک</div>
-                                <div class="wf-val" style="color: #b45309;" id="wfBankBlocked">--</div>
+                                <div class="wf-val" style="color: #b45309;" id="wfBankBlocked">-۲٬۴۰۰٬۰۰۰ تومان</div>
                             </div>
                             <div class="wf-card">
                                 <div class="wf-title">هزینه بیمه‌گری ۵٪</div>
-                                <div class="wf-val" style="color: #dc2626;" id="wfUnderwriting">--</div>
+                                <div class="wf-val" style="color: #dc2626;" id="wfUnderwriting">-۵٬۰۰۰٬۰۰۰ تومان</div>
                             </div>
                             <div class="wf-card">
                                 <div class="wf-title">پوشش فوت ۵٪</div>
-                                <div class="wf-val" style="color: #dc2626;" id="wfLifeCover">--</div>
+                                <div class="wf-val" style="color: #dc2626;" id="wfLifeCover">-۵٬۰۰۰٬۰۰۰ تومان</div>
                             </div>
                             <div class="wf-card">
                                 <div class="wf-title">کارمزد نماینده فروش</div>
-                                <div class="wf-val" style="color: #dc2626;" id="wfAgentFee">--</div>
+                                <div class="wf-val" style="color: #dc2626;" id="wfAgentFee">-۲٬۰۰۰٬۰۰۰ تومان</div>
                             </div>
                             <div class="wf-card wf-final">
                                 <div class="wf-title">خالص واریزی به صندوق</div>
-                                <div class="wf-val" id="wfNetFund">--</div>
+                                <div class="wf-val" id="wfNetFund">۸۱٬۷۰۰٬۰۰۰ تومان</div>
                             </div>
                         </div>
 
                         <div style="margin-top: 1.5rem; background-color: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
                             <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem;">مشخصات اقساط ماهانه وام:</h4>
                             <div style="display: flex; gap: 2rem; flex-wrap: wrap; font-size: 0.85rem;">
-                                <div>مبلغ هر قسط ماهانه: <strong id="wfMonthlyInstallment" style="color: #0284c7;">--</strong></div>
-                                <div>مجموع کل اقساط پرداختی: <strong id="wfTotalInstallments">--</strong></div>
-                                <div>کل سود تسهیلات دریافتی بانک: <strong id="wfTotalInterest" style="color: #16a34a;">--</strong></div>
+                                <div>مبلغ هر قسط ماهانه: <strong id="wfMonthlyInstallment" style="color: #0284c7;">۳٬۱۵۰٬۷۶۰ تومان</strong></div>
+                                <div>مجموع کل اقساط پرداختی: <strong id="wfTotalInstallments">۷۵٬۶۱۸٬۲۳۵ تومان</strong></div>
+                                <div>کل سود تسهیلات دریافتی بانک: <strong id="wfTotalInterest" style="color: #16a34a;">۱۵٬۶۱۸٬۲۳۵ تومان</strong></div>
                             </div>
                         </div>
                     </div>
@@ -1651,8 +1655,13 @@ body {
         </footer>
     </div>
 
-    <script src="js/chart.umd.min.js"></script>
-    <script src="js/charts.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/chart.umd.min.js?v=20260915_v4"></script>
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"><\/script>');
+        }
+    </script>
+    <script src="js/charts.js?v=20260915_v4"></script>
+    <script src="js/app.js?v=20260915_v4"></script>
 </body>
 </html>

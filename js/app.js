@@ -49,8 +49,7 @@ if (typeof window !== 'undefined') {
 
 // راه‌اندازی مطمئن اپلیکیشن در صورت آماده بودن قبلی DOM
 function startApp() {
-    initEventListeners();
-    // اجرای آنی و بلادرنگ محاسبات کلاینت جهت نمایش لحظه‌ای تمام اعداد و نمودارها (۰ میلی‌ثانیه)
+    // ۱. اجرای بلادرنگ محاسبات کلاینت جهت نمایش لحظه‌ای تمام اعداد و نمودارها (۰ میلی‌ثانیه)
     try {
         const initialData = runLocalSimulationEngine(currentModel);
         currentData = initialData;
@@ -58,8 +57,20 @@ function startApp() {
     } catch (e) {
         console.error('Initial local render error:', e);
     }
-    // تلاش برای دریافت از وب‌سرویس در صورت فعال بودن سرور .NET Core
-    fetchSimulation();
+
+    // ۲. اتصال لیسنرهای رویدادها
+    try {
+        initEventListeners();
+    } catch (e) {
+        console.error('Event listeners initialization error:', e);
+    }
+
+    // ۳. تلاش برای همگام‌سازی با وب‌سرویس در صورت فعال بودن سرور .NET Core
+    try {
+        fetchSimulation();
+    } catch (e) {
+        console.error('Fetch simulation error:', e);
+    }
 }
 
 if (document.readyState === 'loading') {
@@ -178,9 +189,16 @@ function triggerRecalculate() {
 }
 
 async function fetchSimulation() {
+    if (typeof window !== 'undefined' && window.location && window.location.protocol === 'file:') {
+        const clientData = runLocalSimulationEngine(currentModel);
+        currentData = clientData;
+        renderDashboard(clientData);
+        return;
+    }
+
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1500);
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
 
         const response = await fetch('/api/simulation/calculate', {
             method: 'POST',
@@ -233,62 +251,68 @@ function renderDashboard(data) {
 }
 
 function renderKPIs(data) {
+    const el = id => document.getElementById(id);
+
     // کارت نقطه سربه‌سر
-    const beEl = document.getElementById('kpiBreakevenVal');
-    const beSub = document.getElementById('kpiBreakevenSub');
-    if (data.nominalBreakevenMonth) {
-        const yr = Math.floor((data.nominalBreakevenMonth - 1) / 12) + 1;
-        const mo = ((data.nominalBreakevenMonth - 1) % 12) + 1;
-        beEl.innerHTML = `<span style="color: #059669;">ماه ${formatNumber(data.nominalBreakevenMonth)}</span>`;
-        beSub.innerHTML = `معادل <strong>سال ${formatNumber(yr)} و ماه ${formatNumber(mo)}</strong> | سربه‌سر با تورم: <strong>${data.realBreakevenMonth ? 'ماه ' + formatNumber(data.realBreakevenMonth) : 'نامشخص'}</strong>`;
-    } else {
-        beEl.innerHTML = `<span style="color: #dc2626;">بیش از ۱۰ سال</span>`;
-        beSub.innerHTML = `در این بازه هزینه اقساط و کارمزدها جبران نمی‌شود.`;
+    const beEl = el('kpiBreakevenVal');
+    const beSub = el('kpiBreakevenSub');
+    if (beEl) {
+        if (data.nominalBreakevenMonth) {
+            const yr = Math.floor((data.nominalBreakevenMonth - 1) / 12) + 1;
+            const mo = ((data.nominalBreakevenMonth - 1) % 12) + 1;
+            beEl.innerHTML = `<span style="color: #059669;">ماه ${formatNumber(data.nominalBreakevenMonth)}</span>`;
+            if (beSub) beSub.innerHTML = `معادل <strong>سال ${formatNumber(yr)} و ماه ${formatNumber(mo)}</strong> | سربه‌سر با تورم: <strong>${data.realBreakevenMonth ? 'ماه ' + formatNumber(data.realBreakevenMonth) : 'نامشخص'}</strong>`;
+        } else {
+            beEl.innerHTML = `<span style="color: #dc2626;">بیش از ۱۰ سال</span>`;
+            if (beSub) beSub.innerHTML = `در این بازه هزینه اقساط و کارمزدها جبران نمی‌شود.`;
+        }
     }
 
     // کارت بازده مشتری
-    const irrEl = document.getElementById('kpiIrrVal');
-    const irrSub = document.getElementById('kpiIrrSub');
-    irrEl.textContent = formatPercent(data.customerAnnualIRR * 100);
-    irrSub.innerHTML = `بازده واقعی پس از کسر تورم: <strong>${formatPercent(data.customerRealIRR * 100)}</strong>`;
+    const irrEl = el('kpiIrrVal');
+    const irrSub = el('kpiIrrSub');
+    if (irrEl) irrEl.textContent = formatPercent(data.customerAnnualIRR * 100);
+    if (irrSub) irrSub.innerHTML = `بازده واقعی پس از کسر تورم: <strong>${formatPercent(data.customerRealIRR * 100)}</strong>`;
 
     // کارت دارایی نهایی
-    const fundEl = document.getElementById('kpiFundVal');
-    const fundSub = document.getElementById('kpiFundSub');
-    fundEl.textContent = formatCurrency(data.customerFinalNominalFund);
-    fundSub.innerHTML = `کل پرداختی: <strong>${formatCurrency(data.customerTotalPayments)}</strong> (سود: ${formatCurrency(data.customerNominalGain)})`;
+    const fundEl = el('kpiFundVal');
+    const fundSub = el('kpiFundSub');
+    if (fundEl) fundEl.textContent = formatCurrency(data.customerFinalNominalFund);
+    if (fundSub) fundSub.innerHTML = `کل پرداختی: <strong>${formatCurrency(data.customerTotalPayments)}</strong> (سود: ${formatCurrency(data.customerNominalGain)})`;
 
     // کارت بانک
-    const bankEl = document.getElementById('kpiBankVal');
-    const bankSub = document.getElementById('kpiBankSub');
-    bankEl.textContent = formatPercent(data.bankEffectiveAPR * 100);
-    bankSub.innerHTML = `کل عایدی ناخالص: <strong>${formatCurrency(data.stakeholders.bankTotalGrossRevenue)}</strong> | ریسک نکول: <strong>صفر</strong>`;
+    const bankEl = el('kpiBankVal');
+    const bankSub = el('kpiBankSub');
+    if (bankEl) bankEl.textContent = formatPercent(data.bankEffectiveAPR * 100);
+    if (bankSub && data.stakeholders) bankSub.innerHTML = `کل عایدی ناخالص: <strong>${formatCurrency(data.stakeholders.bankTotalGrossRevenue)}</strong> | ریسک نکول: <strong>صفر</strong>`;
 
     // کارت بیمه
-    const insEl = document.getElementById('kpiInsVal');
-    const insSub = document.getElementById('kpiInsSub');
-    insEl.textContent = formatCurrency(data.stakeholders.insuranceNetMargin);
-    insSub.innerHTML = `درآمد بیمه‌گری: <strong>${formatCurrency(data.stakeholders.insuranceUnderwritingIncome)}</strong> | خسارت انتظاری: <strong>${formatCurrency(data.stakeholders.insuranceExpectedClaimExpense)}</strong>`;
+    const insEl = el('kpiInsVal');
+    const insSub = el('kpiInsSub');
+    if (insEl && data.stakeholders) insEl.textContent = formatCurrency(data.stakeholders.insuranceNetMargin);
+    if (insSub && data.stakeholders) insSub.innerHTML = `درآمد بیمه‌گری: <strong>${formatCurrency(data.stakeholders.insuranceUnderwritingIncome)}</strong> | خسارت انتظاری: <strong>${formatCurrency(data.stakeholders.insuranceExpectedClaimExpense)}</strong>`;
 }
 
 function renderWaterfall(data) {
-    document.getElementById('wfCustomerCash').textContent = formatCurrency(data.customerInitialCash);
-    document.getElementById('wfBankLoan').textContent = formatCurrency(data.bankLoanAmount);
-    document.getElementById('wfBankFee').textContent = '-' + formatCurrency(data.bankFeeAmount);
-    document.getElementById('wfBankBlocked').textContent = '-' + formatCurrency(data.bankBlockedDepositAmount);
-    document.getElementById('wfUnderwriting').textContent = '-' + formatCurrency(data.insuranceUnderwritingFeeAmount);
-    document.getElementById('wfLifeCover').textContent = '-' + formatCurrency(data.lifeCoverageFeeAmount);
-    document.getElementById('wfAgentFee').textContent = '-' + formatCurrency(data.agentCommissionAmount);
-    document.getElementById('wfNetFund').textContent = formatCurrency(data.netInitialFundDeposit);
+    const el = id => document.getElementById(id);
+    if (el('wfCustomerCash')) el('wfCustomerCash').textContent = formatCurrency(data.customerInitialCash);
+    if (el('wfBankLoan')) el('wfBankLoan').textContent = formatCurrency(data.bankLoanAmount);
+    if (el('wfBankFee')) el('wfBankFee').textContent = '-' + formatCurrency(data.bankFeeAmount);
+    if (el('wfBankBlocked')) el('wfBankBlocked').textContent = '-' + formatCurrency(data.bankBlockedDepositAmount);
+    if (el('wfUnderwriting')) el('wfUnderwriting').textContent = '-' + formatCurrency(data.insuranceUnderwritingFeeAmount);
+    if (el('wfLifeCover')) el('wfLifeCover').textContent = '-' + formatCurrency(data.lifeCoverageFeeAmount);
+    if (el('wfAgentFee')) el('wfAgentFee').textContent = '-' + formatCurrency(data.agentCommissionAmount);
+    if (el('wfNetFund')) el('wfNetFund').textContent = formatCurrency(data.netInitialFundDeposit);
 
     // اقساط ماهانه
-    document.getElementById('wfMonthlyInstallment').textContent = formatCurrency(data.monthlyInstallment);
-    document.getElementById('wfTotalInstallments').textContent = formatCurrency(data.totalInstallmentsAmount);
-    document.getElementById('wfTotalInterest').textContent = formatCurrency(data.totalLoanInterestAmount);
+    if (el('wfMonthlyInstallment')) el('wfMonthlyInstallment').textContent = formatCurrency(data.monthlyInstallment);
+    if (el('wfTotalInstallments')) el('wfTotalInstallments').textContent = formatCurrency(data.totalInstallmentsAmount);
+    if (el('wfTotalInterest')) el('wfTotalInterest').textContent = formatCurrency(data.totalLoanInterestAmount);
 }
 
 function renderMortalityTable(data) {
     const tbody = document.getElementById('mortalityTableBody');
+    if (!tbody || !data || !data.mortalityScenarios) return;
     tbody.innerHTML = '';
     data.mortalityScenarios.forEach(s => {
         const tr = document.createElement('tr');
@@ -307,6 +331,7 @@ function renderMortalityTable(data) {
 
 function renderYearlyTable(data) {
     const tbody = document.getElementById('yearlyTableBody');
+    if (!tbody || !data || !data.yearlySummaries) return;
     tbody.innerHTML = '';
     data.yearlySummaries.forEach(y => {
         const tr = document.createElement('tr');
@@ -328,6 +353,7 @@ function renderYearlyTable(data) {
 
 function renderSensitivityTable(data) {
     const tbody = document.getElementById('sensitivityTableBody');
+    if (!tbody || !data || !data.sensitivityAnalysis) return;
     tbody.innerHTML = '';
     data.sensitivityAnalysis.forEach(p => {
         const tr = document.createElement('tr');
@@ -347,6 +373,7 @@ function renderSensitivityTable(data) {
 
 function renderMonthlyTable(data) {
     const tbody = document.getElementById('monthlyTableBody');
+    if (!tbody || !data || !data.monthlySchedule) return;
     tbody.innerHTML = '';
     // نمایش ۳۶ ماه اول یا گزینش ماه‌ها
     const displayList = data.monthlySchedule.slice(0, 36);
@@ -618,76 +645,85 @@ function renderComparisonMatrix(data) {
 // رندر بخش تحلیل استراتژیک شرکت بیمه
 function renderInsuranceStrategicAnalysis(ins) {
     if (!ins) return;
+    const el = id => document.getElementById(id);
 
     // آمار بالای تب
-    document.getElementById('insStatInflow').textContent = formatCurrency(ins.upfrontCashInflow);
-    document.getElementById('insStatUnderwriting').textContent = formatCurrency(ins.immediateRiskFreeProfit);
-    document.getElementById('insStatAum').textContent = formatCurrency(ins.longTermManagementFees);
-    document.getElementById('insStatNetProfit').textContent = formatCurrency(ins.netProfitAfterClaimsAndExpenses);
-    document.getElementById('insStatCoverageY1').textContent = formatPercent(ins.year1CoverageRatio);
-    document.getElementById('insStatSafeMonth').textContent = ins.monthsToFullCollateralCoverage > 0 
+    if (el('insStatInflow')) el('insStatInflow').textContent = formatCurrency(ins.upfrontCashInflow);
+    if (el('insStatUnderwriting')) el('insStatUnderwriting').textContent = formatCurrency(ins.immediateRiskFreeProfit);
+    if (el('insStatAum')) el('insStatAum').textContent = formatCurrency(ins.longTermManagementFees);
+    if (el('insStatNetProfit')) el('insStatNetProfit').textContent = formatCurrency(ins.netProfitAfterClaimsAndExpenses);
+    if (el('insStatCoverageY1')) el('insStatCoverageY1').textContent = formatPercent(ins.year1CoverageRatio);
+    if (el('insStatSafeMonth')) el('insStatSafeMonth').textContent = ins.monthsToFullCollateralCoverage > 0 
         ? `ماه ${formatNumber(ins.monthsToFullCollateralCoverage)}` 
         : 'از بدو شروع';
 
     // هشدارهای بحرانی
-    const warnBox = document.getElementById('insActiveWarningsBox');
-    const warnList = document.getElementById('insWarningsList');
-    warnList.innerHTML = '';
-    if (ins.criticalWarnings && ins.criticalWarnings.length > 0) {
-        warnBox.style.display = 'block';
-        ins.criticalWarnings.forEach(w => {
-            const li = document.createElement('li');
-            li.textContent = w;
-            warnList.appendChild(li);
-        });
-    } else {
-        warnBox.style.display = 'none';
+    const warnBox = el('insActiveWarningsBox');
+    const warnList = el('insWarningsList');
+    if (warnBox && warnList) {
+        warnList.innerHTML = '';
+        if (ins.criticalWarnings && ins.criticalWarnings.length > 0) {
+            warnBox.style.display = 'block';
+            ins.criticalWarnings.forEach(w => {
+                const li = document.createElement('li');
+                li.textContent = w;
+                warnList.appendChild(li);
+            });
+        } else {
+            warnBox.style.display = 'none';
+        }
     }
 
     // مزایا
-    const prosContainer = document.getElementById('insProsContainer');
-    prosContainer.innerHTML = '';
-    ins.advantages.forEach(a => {
-        const card = document.createElement('div');
-        card.className = 'strategic-card pros-card';
-        card.innerHTML = `
-            <div class="card-top-meta">
-                <span class="card-category">${a.category}</span>
-                <span class="impact-badge ${getImpactClass(a.impactLevel)}">${a.impactLevel}</span>
-            </div>
-            <div class="strategic-title">✨ ${a.title}</div>
-            <div class="strategic-desc">${a.description}</div>
-            ${a.monetaryValue ? `<div class="strategic-monetary">عایدی مالی: ${formatCurrency(a.monetaryValue)}</div>` : ''}
-        `;
-        prosContainer.appendChild(card);
-    });
+    const prosContainer = el('insProsContainer');
+    if (prosContainer && ins.advantages) {
+        prosContainer.innerHTML = '';
+        ins.advantages.forEach(a => {
+            const card = document.createElement('div');
+            card.className = 'strategic-card pros-card';
+            card.innerHTML = `
+                <div class="card-top-meta">
+                    <span class="card-category">${a.category}</span>
+                    <span class="impact-badge ${getImpactClass(a.impactLevel)}">${a.impactLevel}</span>
+                </div>
+                <div class="strategic-title">✨ ${a.title}</div>
+                <div class="strategic-desc">${a.description}</div>
+                ${a.monetaryValue ? `<div class="strategic-monetary">عایدی مالی: ${formatCurrency(a.monetaryValue)}</div>` : ''}
+            `;
+            prosContainer.appendChild(card);
+        });
+    }
 
     // معایب و ریسک‌ها
-    const consContainer = document.getElementById('insConsContainer');
-    consContainer.innerHTML = '';
-    ins.disadvantagesAndRisks.forEach(r => {
-        const card = document.createElement('div');
-        card.className = 'strategic-card cons-card';
-        card.innerHTML = `
-            <div class="card-top-meta">
-                <span class="card-category">${r.category}</span>
-                <span class="impact-badge ${getImpactClass(r.impactLevel)}">${r.impactLevel}</span>
-            </div>
-            <div class="strategic-title">⚠️ ${r.title}</div>
-            <div class="strategic-desc">${r.description}</div>
-            ${r.monetaryValue ? `<div class="strategic-monetary" style="color: #991b1b; background: #fee2e2;">ریسک مالی در معرض: ${formatCurrency(r.monetaryValue)}</div>` : ''}
-        `;
-        consContainer.appendChild(card);
-    });
+    const consContainer = el('insConsContainer');
+    if (consContainer && ins.disadvantagesAndRisks) {
+        consContainer.innerHTML = '';
+        ins.disadvantagesAndRisks.forEach(r => {
+            const card = document.createElement('div');
+            card.className = 'strategic-card cons-card';
+            card.innerHTML = `
+                <div class="card-top-meta">
+                    <span class="card-category">${r.category}</span>
+                    <span class="impact-badge ${getImpactClass(r.impactLevel)}">${r.impactLevel}</span>
+                </div>
+                <div class="strategic-title">⚠️ ${r.title}</div>
+                <div class="strategic-desc">${r.description}</div>
+                ${r.monetaryValue ? `<div class="strategic-monetary" style="color: #991b1b; background: #fee2e2;">ریسک مالی در معرض: ${formatCurrency(r.monetaryValue)}</div>` : ''}
+            `;
+            consContainer.appendChild(card);
+        });
+    }
 
     // توصیه‌ها
-    const recsList = document.getElementById('insRecommendationsList');
-    recsList.innerHTML = '';
-    ins.strategicRecommendations.forEach(rec => {
-        const li = document.createElement('li');
-        li.textContent = rec;
-        recsList.appendChild(li);
-    });
+    const recsList = el('insRecommendationsList');
+    if (recsList && ins.strategicRecommendations) {
+        recsList.innerHTML = '';
+        ins.strategicRecommendations.forEach(rec => {
+            const li = document.createElement('li');
+            li.textContent = rec;
+            recsList.appendChild(li);
+        });
+    }
 }
 
 function getImpactClass(level) {
