@@ -31,13 +31,20 @@ function formatCurrency(val) {
     return Number(Math.round(val)).toLocaleString('fa-IR') + ' تومان';
 }
 
-function formatNumber(val) {
-    if (val === undefined || val === null) return '۰';
-    return Number(Math.round(val)).toLocaleString('fa-IR');
+function formatNumber(val, decimals = null) {
+    if (val === undefined || val === null || isNaN(val)) return '۰';
+    const num = Number(val);
+    if (decimals !== null) {
+        return num.toLocaleString('fa-IR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    }
+    if (Number.isInteger(num)) {
+        return num.toLocaleString('fa-IR');
+    }
+    return Number(num.toFixed(1)).toLocaleString('fa-IR');
 }
 
 function formatPercent(val) {
-    if (val === undefined || val === null) return '۰٪';
+    if (val === undefined || val === null || isNaN(val)) return '۰٪';
     return Number(val.toFixed(1)).toLocaleString('fa-IR') + '٪';
 }
 
